@@ -5,7 +5,7 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "src"
 version = "0.0.1"
-description = "Classifier of Vertabrae injuries."
+description = "Classifier of Vertebrae injuries."
 authors = [
   { name = "Mateusz Ostaszewski" },
 ]

@@ -2,7 +2,7 @@
 # GLOBALS                                                                       #
 #################################################################################
 
-PROJECT_NAME = vertabrae_cls
+PROJECT_NAME = vertebrae_cls
 PYTHON_VERSION = 3.13
 PYTHON_INTERPRETER = python
 

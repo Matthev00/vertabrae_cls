@@ -1,8 +1,8 @@
-# vertabrae_cls documentation!
+# vertebrae_cls documentation!
 
 ## Description
 
-Classifier of Vertabrae injuries.
+Classifier of Vertebrae injuries.
 
 ## Commands
 

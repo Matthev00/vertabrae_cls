@@ -18,7 +18,7 @@ from monai.transforms import (
     Spacingd,
 )
 
-from config import SEG_MODEL_DIR, VERTABRAE_MAP
+from config import SEG_MODEL_DIR, VERTeBRAE_MAP
 
 
 class VertebraExtractor:
@@ -149,7 +149,7 @@ class VertebraExtractor:
 
         return output
 
-    def _resize_vertabrae_tensor(
+    def _resize_vertebrae_tensor(
         self,
         input_tensor: torch.Tensor,
         coords: np.ndarray,
@@ -211,7 +211,7 @@ class VertebraExtractor:
         self,
         input_tensor: torch.Tensor,
         metadata: dict,
-        target_vertabrae: str,
+        target_vertebrae: str,
         target_size: Optional[tuple[int, int, int]] = None,
     ) -> Optional[torch.Tensor]:
         """
@@ -220,16 +220,16 @@ class VertebraExtractor:
         Args:
             input_tensor (torch.Tensor): The input tensor.
             metadata (dict): Metadata for the tensor.
-            target_vertabrae (str): The vertebrae to extract.
+            target_vertebrae (str): The vertebrae to extract.
             target_size (tuple[int, int, int], optional): The target size for resizing.
                 If None, the original size will be used.
 
         Returns:
             Optional[torch.Tensor]: The extracted vertebrae tensor, or None if no vertebrae are found.
         """
-        target_label = VERTABRAE_MAP.get(target_vertabrae)
+        target_label = VERTeBRAE_MAP.get(target_vertebrae)
         if target_label is None:
-            raise ValueError(f"Invalid target vertebrae: {target_vertabrae}")
+            raise ValueError(f"Invalid target vertebrae: {target_vertebrae}")
 
         labels = [target_label]
         if target_size is None:
@@ -250,6 +250,6 @@ class VertebraExtractor:
             output = input_tensor[:, :, zmin:zmax, ymin:ymax, xmin:xmax]
             return output.squeeze().detach().cpu()
 
-        return self._resize_vertabrae_tensor(
+        return self._resize_vertebrae_tensor(
             input_tensor, coords, target_size
         )

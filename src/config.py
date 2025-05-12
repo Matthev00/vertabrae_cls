@@ -13,6 +13,7 @@ RAW_DATA_DIR = DATA_DIR / "raw"
 INTERIM_DATA_DIR = DATA_DIR / "interim"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 EXTERNAL_DATA_DIR = DATA_DIR / "external"
+DICOM_DATA_DIR = RAW_DATA_DIR / "dicom"
 
 MODELS_DIR = PROJ_ROOT / "models"
 SEG_MODEL_DIR = MODELS_DIR / "monai_seg"
@@ -22,7 +23,7 @@ FIGURES_DIR = REPORTS_DIR / "figures"
 
 
 # Constants
-VERTABRAE_MAP = {
+VERTEBRAE_MAP = {
     "L5": 18,
     "L4": 19,
     "L3": 20,
