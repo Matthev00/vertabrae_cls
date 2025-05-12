@@ -13,7 +13,9 @@ RAW_DATA_DIR = DATA_DIR / "raw"
 INTERIM_DATA_DIR = DATA_DIR / "interim"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 EXTERNAL_DATA_DIR = DATA_DIR / "external"
-DICOM_DATA_DIR = RAW_DATA_DIR / "dicom"
+DICOM_DATA_DIR = Path("/media/mateusz/DATA/downloads/inz")
+LABELS_FILE_PATH = PROCESSED_DATA_DIR / "labels.csv"
+TENSOR_DIR = PROCESSED_DATA_DIR / "tensors"
 
 MODELS_DIR = PROJ_ROOT / "models"
 SEG_MODEL_DIR = MODELS_DIR / "monai_seg"
@@ -49,3 +51,7 @@ VERTEBRAE_MAP = {
     "C2": 40,
     "C1": 41,
 }
+
+# Model config
+IS_FULL_RESOLUTION = False
+DEVICE = "cpu"
