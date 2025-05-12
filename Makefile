@@ -39,6 +39,11 @@ format:
 	black --config pyproject.toml src
 
 
+## Prepare interim data from xlsx
+.PHONY: prepare_interim_data
+prepare_interim_data:
+	uv run src/data_utils/XLSExtractor.py
+
 
 
 

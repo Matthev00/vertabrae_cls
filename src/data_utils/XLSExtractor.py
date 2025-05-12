@@ -68,7 +68,7 @@ class XLSExtractor:
                         current_traumas.append((level, trauma_type))
 
         if current_traumas:
-            self.records.append({"I.I": f"I.I. {current_ii}", "traumas": current_traumas})
+            self.records.append({"I.I": f"{current_ii}", "traumas": current_traumas})
 
     def extract_and_save(self, output_path: Path) -> None:
         """
