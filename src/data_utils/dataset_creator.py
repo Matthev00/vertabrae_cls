@@ -1,5 +1,6 @@
 import ast
 import csv
+import random
 from pathlib import Path
 from typing import Optional
 
@@ -11,7 +12,9 @@ from src.config import (
     DICOM_DATA_DIR,
     IS_FULL_RESOLUTION,
     LABELS_FILE_PATH,
+    RAPORT_FILE_PATH,
     TENSOR_DIR,
+    VERTEBRAE_MAP,
 )
 from src.data_utils.dicom_reader import DICOMReader
 from src.data_utils.vertebra_extractor import VertebraExtractor
@@ -22,7 +25,7 @@ class DatasetCreator:
     Class to create datasets for vertebrae segmentation.
     """
 
-    def __init__(self, raport_file_path: Path = None) -> None:
+    def __init__(self, raport_file_path: Path) -> None:
         """
         Initialize the DatasetCreator.
 
@@ -31,25 +34,118 @@ class DatasetCreator:
         """
         self.raport_file_path = raport_file_path
 
+    def _process_injured_vertebrae(
+        self,
+        vertebra_extractor: VertebraExtractor,
+        tensor: torch.Tensor,
+        metadata: dict,
+        dir_name: str,
+        injuried_vertebrae: list[tuple[str, str]],
+        target_size: Optional[tuple[int, int, int]],
+    ) -> list[dict]:
+        """
+        Process injured vertebrae and extract their tensors.
+
+        Args:
+            vertebra_extractor (VertebraExtractor): The vertebra extractor instance.
+            tensor (torch.Tensor): The input tensor.
+            metadata (dict): Metadata for the tensor.
+            dir_name (str): Directory name of the patient.
+            injuried_vertebrae (list[tuple[str, str]]): List of tuples containing vertebrae information (vertebra, injury_type).
+            target_size (tuple[int, int, int], optional): Target size for the extracted tensors.
+
+        Returns:
+            list[dict]: List of dictionaries containing injured vertebrae data.
+        """
+        injured_data = []
+        for vertebra, injury_type in injuried_vertebrae:
+            target_tensor = vertebra_extractor.extract_vertebrae_with_neighbors(
+                input_tensor=tensor,
+                metadata=metadata,
+                target_vertebrae=vertebra,
+                target_size=target_size,
+            )
+            if target_tensor is not None:
+                injured_data.append(
+                    {
+                        "vertebra": vertebra,
+                        "injury_type": injury_type,
+                        "target_tensor": target_tensor,
+                        "II": dir_name.split(" ")[0],
+                    }
+                )
+        return injured_data
+
+    def _process_healthy_vertebrae(
+        self,
+        vertebra_extractor: VertebraExtractor,
+        tensor: torch.Tensor,
+        metadata: dict,
+        dir_name: str,
+        injuried_vertebrae: list[tuple[str, str]],
+        target_size: Optional[tuple[int, int, int]],
+        num_healthy: int,
+    ) -> list[dict]:
+        """
+        Process healthy vertebrae and extract their tensors.
+
+        Args:
+            vertebra_extractor (VertebraExtractor): The vertebra extractor instance.
+            tensor (torch.Tensor): The input tensor.
+            metadata (dict): Metadata for the tensor.
+            dir_name (str): Directory name of the patient.
+            injuried_vertebrae (list[tuple[str, str]]): List of tuples containing vertebrae information (vertebra, injury_type).
+            target_size (tuple[int, int, int], optional): Target size for the extracted tensors.
+            num_healthy (int): Number of healthy vertebrae to extract.
+
+        Returns:
+            list[dict]: List of dictionaries containing healthy vertebrae data.
+        """
+        healthy_data = []
+        all_vertebrae = set(VERTEBRAE_MAP.keys())
+        injured_vertebrae_names = {vertebra for vertebra, _ in injuried_vertebrae}
+        healthy_vertebrae = list(all_vertebrae - injured_vertebrae_names)
+
+        random_healthy_vertebrae = random.sample(
+            healthy_vertebrae, min(num_healthy, len(healthy_vertebrae))
+        )
+
+        for vertebra in random_healthy_vertebrae:
+            target_tensor = vertebra_extractor.extract_vertebrae_with_neighbors(
+                input_tensor=tensor,
+                metadata=metadata,
+                target_vertebrae=vertebra,
+                target_size=target_size,
+            )
+            if target_tensor is not None:
+                healthy_data.append(
+                    {
+                        "vertebra": vertebra,
+                        "injury_type": "H",
+                        "target_tensor": target_tensor,
+                        "II": dir_name.split(" ")[0],
+                    }
+                )
+        return healthy_data
+
     def process_patient(
         self,
         dir_name: str,
         injuried_vertebrae: list[tuple[str, str]],
         target_size: Optional[tuple[int, int, int]] = None,
+        num_healthy: int = 1,
     ) -> list[dict]:
         """
         Process a patient's DICOM files and extract vertebrae data.
         This function reads the DICOM files, extracts the vertebrae and their injuries,
         and returns a list of dictionaries containing the vertebrae data.
-        The dictionaries contain the following keys:
-            - "vertebra": The name of the vertebra.
-            - "injury_type": The type of injury.
-            - "target_tensor": The extracted tensor for the vertebra.
-            - "II": The patient ID.
+        Additionally, it extracts a specified number of random healthy vertebrae not listed as injured.
 
         Args:
             dir_name (str): Directory name of the patient.
             injuried_vertebrae (list[tuple[str, str]]): List of tuples containing vertebrae information (vertebra, injury_type).
+            target_size (tuple[int, int, int], optional): Target size for the extracted tensors.
+            num_healthy (int): Number of healthy vertebrae to extract.
 
         Returns:
             list[dict]: List of dictionaries containing vertebrae data.
@@ -59,25 +155,28 @@ class DatasetCreator:
         dicom_reader = DICOMReader(dir_path)
         tensor, description, metadata = dicom_reader.process_dicom_series()
         vertebra_extractor = VertebraExtractor(IS_FULL_RESOLUTION, DEVICE)
-        for vertebra, injury_type in injuried_vertebrae:
-            target_tensor = vertebra_extractor.extract_vertebrae_with_neighbors(
-                input_tensor=tensor,
-                metadata=metadata,
-                target_vertebrae=vertebra,
-                target_size=target_size,
+
+        patient_data.extend(
+            self._process_injured_vertebrae(
+                vertebra_extractor, tensor, metadata, dir_name, injuried_vertebrae, target_size
             )
-            if target_tensor is not None:
-                patient_data.append(
-                    {
-                        "vertebra": vertebra,
-                        "injury_type": injury_type,
-                        "target_tensor": target_tensor,
-                        "II": dir_name.split(" ")[0],
-                    }
-                )
+        )
+
+        patient_data.extend(
+            self._process_healthy_vertebrae(
+                vertebra_extractor,
+                tensor,
+                metadata,
+                dir_name,
+                injuried_vertebrae,
+                target_size,
+                num_healthy,
+            )
+        )
+
         return patient_data
 
-    def extract_dir_names(raw: str) -> list[str]:
+    def extract_dir_names(self, raw: str) -> list[str]:
         """
         Extracts dir name from raw name
 
@@ -165,7 +264,9 @@ class DatasetCreator:
                 )
                 next_index += 1
 
-    def create_dataset(self, target_size: Optional[tuple[int, int, int]] = None) -> None:
+    def create_dataset(
+        self, target_size: Optional[tuple[int, int, int]] = None, num_healthy: int = 1
+    ) -> None:
         """
         Parse the report file and process DICOM data for each patient.
 
@@ -181,9 +282,12 @@ class DatasetCreator:
             target_size (Optional[tuple[int, int, int]]):
                 Optional shape to which extracted vertebra tensors should be resized.
                 If None, original size is preserved.
+            num_healthy (int): Number of healthy vertebrae to extract.
+
         """
         with open(self.raport_file_path, newline="") as f:
             reader = csv.reader(f)
+            next(reader)
             for row in tqdm(reader):
                 raw_name, raw_injuries = row
                 raw_name = raw_name.strip('"')
@@ -197,10 +301,5 @@ class DatasetCreator:
 
 
 if __name__ == "__main__":
-    x = DatasetCreator()
-    list = x.process_patient(dir_name="MM M 62", injuried_vertebrae=[("L5", "A0")])
-    for dict in list:
-        print(dict["II"])
-        print(dict["vertebra"])
-        print(dict["injury_type"])
-        print(dict["target_tensor"].shape)
+    x = DatasetCreator(RAPORT_FILE_PATH)
+    x.create_dataset()
