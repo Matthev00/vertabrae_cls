@@ -14,6 +14,7 @@ INTERIM_DATA_DIR = DATA_DIR / "interim"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 EXTERNAL_DATA_DIR = DATA_DIR / "external"
 DICOM_DATA_DIR = Path("/media/mateusz/DATA/downloads/inz")
+RAPORT_FILE_PATH = INTERIM_DATA_DIR / "extracted_data.csv"
 LABELS_FILE_PATH = PROCESSED_DATA_DIR / "labels.csv"
 TENSOR_DIR = PROCESSED_DATA_DIR / "tensors"
 

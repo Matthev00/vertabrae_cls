@@ -177,13 +177,3 @@ class DICOMReader:
         series_tensors = self._load_all_dicom_series()
 
         return self._select_tensor_by_priority(series_tensors)
-
-
-if __name__ == "__main__":
-
-    dicom_root_folder = "/media/mateusz/DATA/downloads/inz/MM M 62"
-    dicom_reader = DICOMReader(dicom_root_folder)
-    tensor, description, metadata = dicom_reader.process_dicom_series()
-    print(f"Description: {description}")
-    print(f"Tensor shape: {tensor.shape}")
-    print(f"Metadata: {metadata}")

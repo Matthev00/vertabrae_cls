@@ -18,7 +18,7 @@ from monai.transforms import (
     Spacingd,
 )
 
-from config import SEG_MODEL_DIR, VERTeBRAE_MAP
+from src.config import SEG_MODEL_DIR, VERTEBRAE_MAP
 
 
 class VertebraExtractor:
@@ -51,7 +51,7 @@ class VertebraExtractor:
         )
         self.device = device
         self.is_full_resolution = is_full_resolution
-        self.model = self._load_model(is_full_resolution)
+        self.model = self._load_model()
 
     def _load_model(self) -> torch.nn.Module:
         """
@@ -63,7 +63,7 @@ class VertebraExtractor:
 
         model_filename = "model.pt" if self.is_full_resolution else "model_lowres.pt"
         model_path = SEG_MODEL_DIR / "models" / model_filename
-        config_path = SEG_MODEL_DIR / "config" / "inference.json"
+        config_path = SEG_MODEL_DIR / "configs" / "inference.json"
 
         parser = ConfigParser()
         parser.read_config(config_path)
@@ -75,6 +75,7 @@ class VertebraExtractor:
             weights = weights["state_dict"]
         model.load_state_dict(weights)
         model.eval()
+        model.to(self.device)
         return model
 
     def _save_tensor_as_nrrd(self, tensor: torch.Tensor, metadata: dict, filename: str) -> None:
@@ -120,7 +121,9 @@ class VertebraExtractor:
             transformed_data = self.transforms(data)
             return transformed_data["image"]
 
-    def get_segmentation(self, raw_tensor: torch.Tensor, metadata: dict) -> torch.Tensor:
+    def get_segmentation(
+        self, raw_tensor: torch.Tensor, metadata: dict
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """
         Get the segmentation of the input tensor.
 
@@ -129,7 +132,7 @@ class VertebraExtractor:
             metadata (dict): Metadata for the tensor.
 
         Returns:
-            torch.Tensor: The segmentation result.
+            tuple[torch.Tensor, torch.Tensor]: The segmentation tensor and the input tensor.
         """
         transformed_tensor = self._transform_data(raw_tensor, metadata)
 
@@ -140,14 +143,12 @@ class VertebraExtractor:
                 roi_size=(96, 96, 96),
                 sw_batch_size=1,
                 predictor=self.model,
-                padding_mode="replicate",
                 overlap=0.5,
                 mode="gaussian",
             )
-            output = self.model(transformed_tensor)
             output = torch.argmax(output, dim=1).squeeze(0).cpu().numpy()
 
-        return output
+        return output, input_tensor
 
     def _resize_vertebrae_tensor(
         self,
@@ -227,7 +228,7 @@ class VertebraExtractor:
         Returns:
             Optional[torch.Tensor]: The extracted vertebrae tensor, or None if no vertebrae are found.
         """
-        target_label = VERTeBRAE_MAP.get(target_vertebrae)
+        target_label = VERTEBRAE_MAP.get(target_vertebrae)
         if target_label is None:
             raise ValueError(f"Invalid target vertebrae: {target_vertebrae}")
 
@@ -235,7 +236,7 @@ class VertebraExtractor:
         if target_size is None:
             labels.extend([max(18, target_label - 1), min(41, target_label + 1)])
 
-        segmentation = self.get_segmentation(input_tensor, metadata)
+        segmentation, input_tensor = self.get_segmentation(input_tensor, metadata)
         mask = np.isin(segmentation, labels).astype(np.uint8)
 
         coords = np.array(mask.nonzero())
@@ -250,6 +251,4 @@ class VertebraExtractor:
             output = input_tensor[:, :, zmin:zmax, ymin:ymax, xmin:xmax]
             return output.squeeze().detach().cpu()
 
-        return self._resize_vertebrae_tensor(
-            input_tensor, coords, target_size
-        )
+        return self._resize_vertebrae_tensor(input_tensor, coords, target_size)
