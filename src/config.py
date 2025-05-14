@@ -54,5 +54,5 @@ VERTEBRAE_MAP = {
 }
 
 # Model config
-IS_FULL_RESOLUTION = False
+IS_FULL_RESOLUTION = True
 DEVICE = "cpu"
