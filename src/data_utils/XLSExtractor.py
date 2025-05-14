@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pandas as pd
+import re
 
 
 class XLSExtractor:
@@ -62,10 +63,12 @@ class XLSExtractor:
                 current_ii = row["I.I."]
 
             if pd.notna(row["Poziom"]):
-                level = row["Poziom"]
-                for trauma_type in ["A0", "A1", "A2", "A3", "A4", "B1", "B2", "B3", "C"]:
-                    if pd.notna(row[trauma_type]):
-                        current_traumas.append((level, trauma_type))
+                levels = re.split(r"[/\-]", row["Poziom"])
+                for level in levels:
+                    level = level.strip()
+                    for trauma_type in ["A0", "A1", "A2", "A3", "A4", "B1", "B2", "B3", "C"]:
+                        if pd.notna(row[trauma_type]):
+                            current_traumas.append((level, trauma_type))
 
         if current_traumas:
             self.records.append({"I.I": f"{current_ii}", "traumas": current_traumas})
