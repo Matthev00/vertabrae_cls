@@ -1,4 +1,27 @@
 site_name: vertebrae_cls
-# 
+theme:
+  name: "material"
+  palette:
+    primary: 'indigo'
+    accent: 'indigo'
+  font:
+    text: 'Roboto'
+    code: 'Roboto Mono'
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Commands: commands.md
+  - Code Docs:
+      - Evaluation: code/evaluation.md
+      - Data preparation: code/data_preparation.md
+      - Training: code/training.md
+      - Modeling: code/modeling.md
+      - Inference: code/inference.md
 site_author: Mateusz Ostaszewski
-# 

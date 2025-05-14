@@ -14,8 +14,8 @@ PYTHON_INTERPRETER = python
 ## Install Python Dependencies
 .PHONY: requirements
 requirements:
-	$(PYTHON_INTERPRETER) -m pip install -U pip
-	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
+	pip install uv
+	uv sync
 	
 
 
@@ -49,15 +49,6 @@ prepare_interim_data:
 create_dataset:
 	uv run src/data_utils/dataset_creator.py
 
-#################################################################################
-# PROJECT RULES                                                                 #
-#################################################################################
-
-
-## Make Dataset
-.PHONY: data
-data: requirements
-	$(PYTHON_INTERPRETER) src/dataset.py
 
 
 #################################################################################

@@ -1,6 +1,37 @@
-Getting started
+Getting Started
 ===============
 
-This is where you describe how to get set up on a clean install, including the
-commands necessary to get the raw data (using the `sync_data_from_s3` command,
-for example), and then how to make the cleaned, final data sets.
+A guide to setting up the project from scratch, including installing dependencies, preparing data, and creating datasets.
+
+## Prerequisites
+
+Ensure you have the following installed:
+- Python version `3.13`
+- `make` utility
+
+## Setup Instructions
+
+### Clone the repository:
+   
+```bash
+git clone <repository-url>
+cd vertebrae_cls
+```
+
+### Install Python dependencies: Use the `requirements` command to install all necessary Python dependencies:
+   
+```bash
+make requirements
+```
+
+### Prepare interim data: Extract and process data from the XLS file:
+   
+```bash
+make prepare_interim_data
+```
+
+### Create the dataset: Generate the final dataset using the processed interim data:
+   
+```bash
+make create_dataset
+```
