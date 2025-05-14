@@ -59,21 +59,24 @@ class DatasetCreator:
         """
         injured_data = []
         for vertebra, injury_type in injuried_vertebrae:
-            target_tensor = vertebra_extractor.extract_vertebrae_with_neighbors(
-                input_tensor=tensor,
-                metadata=metadata,
-                target_vertebrae=vertebra,
-                target_size=target_size,
-            )
-            if target_tensor is not None:
-                injured_data.append(
-                    {
-                        "vertebra": vertebra,
-                        "injury_type": injury_type,
-                        "target_tensor": target_tensor,
-                        "II": dir_name.split(" ")[0],
-                    }
+            try:
+                target_tensor = vertebra_extractor.extract_vertebrae_with_neighbors(
+                    input_tensor=tensor,
+                    metadata=metadata,
+                    target_vertebrae=vertebra,
+                    target_size=target_size,
                 )
+                if target_tensor is not None:
+                    injured_data.append(
+                        {
+                            "vertebra": vertebra,
+                            "injury_type": injury_type,
+                            "target_tensor": target_tensor,
+                            "II": dir_name.split(" ")[0],
+                        }
+                    )
+            except Exception as e:
+                print(f"Error processing {vertebra} in {dir_name}: {e}")
         return injured_data
 
     def _process_healthy_vertebrae(
@@ -111,21 +114,24 @@ class DatasetCreator:
         )
 
         for vertebra in random_healthy_vertebrae:
-            target_tensor = vertebra_extractor.extract_vertebrae_with_neighbors(
-                input_tensor=tensor,
-                metadata=metadata,
-                target_vertebrae=vertebra,
-                target_size=target_size,
-            )
-            if target_tensor is not None:
-                healthy_data.append(
-                    {
-                        "vertebra": vertebra,
-                        "injury_type": "H",
-                        "target_tensor": target_tensor,
-                        "II": dir_name.split(" ")[0],
-                    }
+            try:
+                target_tensor = vertebra_extractor.extract_vertebrae_with_neighbors(
+                    input_tensor=tensor,
+                    metadata=metadata,
+                    target_vertebrae=vertebra,
+                    target_size=target_size,
                 )
+                if target_tensor is not None:
+                    healthy_data.append(
+                        {
+                            "vertebra": vertebra,
+                            "injury_type": "H",
+                            "target_tensor": target_tensor,
+                            "II": dir_name.split(" ")[0],
+                        }
+                    )
+            except Exception as e:
+                print(f"Error processing {vertebra} in {dir_name}: {e}")
         return healthy_data
 
     def process_patient(
@@ -259,7 +265,7 @@ class DatasetCreator:
                         "vertebra": vertebra,
                         "injury_type": injury_type,
                         "II": II,
-                        "tensor_path": str(tensor_file_path),
+                        "tensor_path": str(f"{next_index:05d}"),
                     }
                 )
                 next_index += 1
