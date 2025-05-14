@@ -238,7 +238,7 @@ class DatasetCreator:
                 - "II" (str): Patient ID prefix.
         """
         labels_file_exists = LABELS_FILE_PATH.exists()
-        next_index = self.get_max_index()
+        next_index = self.get_max_index() + 1
 
         with open(LABELS_FILE_PATH, mode="a", newline="") as csvfile:
             writer = csv.DictWriter(

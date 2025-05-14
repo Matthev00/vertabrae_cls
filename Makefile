@@ -44,9 +44,10 @@ format:
 prepare_interim_data:
 	uv run src/data_utils/XLSExtractor.py
 
-
-
-
+## Create Dataset
+.PHONY: create_dataset
+create_dataset:
+	uv run src/data_utils/dataset_creator.py
 
 #################################################################################
 # PROJECT RULES                                                                 #
