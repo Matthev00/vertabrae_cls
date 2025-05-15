@@ -56,3 +56,4 @@ VERTEBRAE_MAP = {
 # Model config
 IS_FULL_RESOLUTION = True
 DEVICE = "cpu"
+TARGET_TENSOR_SIZE = (64, 64, 64)

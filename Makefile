@@ -37,6 +37,7 @@ lint:
 .PHONY: format
 format:
 	black --config pyproject.toml src
+	isort --profile black src
 
 
 ## Prepare interim data from xlsx

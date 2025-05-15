@@ -13,6 +13,7 @@ from src.config import (
     IS_FULL_RESOLUTION,
     LABELS_FILE_PATH,
     RAPORT_FILE_PATH,
+    TARGET_TENSOR_SIZE,
     TENSOR_DIR,
     VERTEBRAE_MAP,
 )
@@ -301,11 +302,14 @@ class DatasetCreator:
                 injuries = ast.literal_eval(raw_injuries)
                 for name in dir_names:
                     patient_data = self.process_patient(
-                        dir_name=name, injuried_vertebrae=injuries, target_size=target_size
+                        dir_name=name,
+                        injuried_vertebrae=injuries,
+                        target_size=target_size,
+                        num_healthy=num_healthy,
                     )
                     self.save_patient_data(patient_data)
 
 
 if __name__ == "__main__":
     x = DatasetCreator(RAPORT_FILE_PATH)
-    x.create_dataset()
+    x.create_dataset(target_size=TARGET_TENSOR_SIZE, num_healthy=1)
