@@ -3,6 +3,7 @@ import csv
 import random
 from pathlib import Path
 from typing import Optional
+import shutil
 
 import torch
 from tqdm import tqdm
@@ -270,9 +271,24 @@ class DatasetCreator:
                     }
                 )
                 next_index += 1
+    
+    def _get_processed_patients(self) -> set[str]:
+        """
+        Get processed patients from the labels file.
+
+        Returns:
+            set[str]: Set of processed patient identifiers.
+        """
+        processed_patients = set()
+        if LABELS_FILE_PATH.exists():
+            with open(LABELS_FILE_PATH, newline="") as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    processed_patients.add(row["II"])
+        return processed_patients
 
     def create_dataset(
-        self, target_size: Optional[tuple[int, int, int]] = None, num_healthy: int = 1
+        self, target_size: Optional[tuple[int, int, int]] = None, num_healthy: int = 1, ignore_existing: bool = False
     ) -> None:
         """
         Parse the report file and process DICOM data for each patient.
@@ -290,8 +306,18 @@ class DatasetCreator:
                 Optional shape to which extracted vertebra tensors should be resized.
                 If None, original size is preserved.
             num_healthy (int): Number of healthy vertebrae to extract.
+            ignore_existing (bool): If True, existing extracted data will be deleted.
 
         """
+        if ignore_existing:
+            if LABELS_FILE_PATH.exists():
+                LABELS_FILE_PATH.unlink()
+            if TENSOR_DIR.exists():
+                shutil.rmtree(TENSOR_DIR)
+                print(f"Deleted contents of tensor directory: {TENSOR_DIR}")
+        
+        processed_patients = self._get_processed_patients()
+
         with open(self.raport_file_path, newline="") as f:
             reader = csv.reader(f)
             next(reader)
@@ -301,6 +327,8 @@ class DatasetCreator:
                 dir_names = self.extract_dir_names(raw_name)
                 injuries = ast.literal_eval(raw_injuries)
                 for name in dir_names:
+                    if name.split(" ")[0] in processed_patients:
+                        continue
                     patient_data = self.process_patient(
                         dir_name=name,
                         injuried_vertebrae=injuries,
