@@ -1,9 +1,9 @@
 import ast
 import csv
 import random
+import shutil
 from pathlib import Path
 from typing import Optional
-import shutil
 
 import torch
 from tqdm import tqdm
@@ -111,11 +111,12 @@ class DatasetCreator:
         injured_vertebrae_names = {vertebra for vertebra, _ in injuried_vertebrae}
         healthy_vertebrae = list(all_vertebrae - injured_vertebrae_names)
 
-        random_healthy_vertebrae = random.sample(
-            healthy_vertebrae, min(num_healthy, len(healthy_vertebrae))
-        )
+        random.shuffle(healthy_vertebrae)
 
-        for vertebra in random_healthy_vertebrae:
+        for vertebra in healthy_vertebrae:
+            if len(healthy_data) >= num_healthy:
+                break
+
             try:
                 target_tensor = vertebra_extractor.extract_vertebrae_with_neighbors(
                     input_tensor=tensor,
@@ -134,6 +135,12 @@ class DatasetCreator:
                     )
             except Exception as e:
                 print(f"Error processing {vertebra} in {dir_name}: {e}")
+
+        if len(healthy_data) < num_healthy:
+            print(
+                f"Warning: Could only extract {len(healthy_data)} healthy vertebrae out of {num_healthy} requested for {dir_name}."
+            )
+
         return healthy_data
 
     def process_patient(
@@ -271,7 +278,7 @@ class DatasetCreator:
                     }
                 )
                 next_index += 1
-    
+
     def _get_processed_patients(self) -> set[str]:
         """
         Get processed patients from the labels file.
@@ -288,7 +295,10 @@ class DatasetCreator:
         return processed_patients
 
     def create_dataset(
-        self, target_size: Optional[tuple[int, int, int]] = None, num_healthy: int = 1, ignore_existing: bool = False
+        self,
+        target_size: Optional[tuple[int, int, int]] = None,
+        num_healthy: int = 1,
+        ignore_existing: bool = False,
     ) -> None:
         """
         Parse the report file and process DICOM data for each patient.
@@ -315,7 +325,7 @@ class DatasetCreator:
             if TENSOR_DIR.exists():
                 shutil.rmtree(TENSOR_DIR)
                 print(f"Deleted contents of tensor directory: {TENSOR_DIR}")
-        
+
         processed_patients = self._get_processed_patients()
 
         with open(self.raport_file_path, newline="") as f:
