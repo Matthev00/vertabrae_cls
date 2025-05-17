@@ -127,7 +127,7 @@ class DICOMReader:
         self, series_tensors: dict[str, dict[str, torch.Tensor]]
     ) -> tuple[Optional[torch.Tensor], Optional[str], Optional[dict]]:
         """
-        Selects a tensor based on priority: "kosci" > "miekkie" > largest tensor.
+        Selects a tensor based on priority: largest tensor first, then "kosci" > "miekkie" > rest.
 
         Args:
             series_tensors (Dict[str, Dict[str, torch.Tensor]]): Dictionary of series descriptions
@@ -137,28 +137,27 @@ class DICOMReader:
             Tuple[Optional[torch.Tensor], Optional[str], Optional[Dict]]: The selected tensor,
             its description, and metadata. Returns None if no tensor is found.
         """
-        selected_tensor = None
-        selected_description = None
-        selected_metadata = None
-
-        for series_description, data in series_tensors.items():
-            if "kosci" in series_description.lower():
-                return data["tensor"], series_description, data["metadata"]
-
-        for series_description, data in series_tensors.items():
-            if "miekkie" in series_description.lower():
-                return data["tensor"], series_description, data["metadata"]
-
         max_size = 0
+        largest_tensors = []
+
         for series_description, data in series_tensors.items():
             tensor_size = data["tensor"].numel()
             if tensor_size > max_size:
                 max_size = tensor_size
-                selected_tensor = data["tensor"]
-                selected_metadata = data["metadata"]
-                selected_description = series_description
+                largest_tensors = [(series_description, data)]
+            elif tensor_size == max_size:
+                largest_tensors.append((series_description, data))
 
-        return selected_tensor, selected_description, selected_metadata
+        for priority in ["kosci", "miekkie"]:
+            for series_description, data in largest_tensors:
+                if priority in series_description.lower():
+                    return data["tensor"], series_description, data["metadata"]
+
+        if largest_tensors:
+            series_description, data = largest_tensors[0]
+            return data["tensor"], series_description, data["metadata"]
+
+        return None, None, None
 
     def process_dicom_series(self) -> tuple[Optional[torch.Tensor], Optional[str], Optional[dict]]:
         """
