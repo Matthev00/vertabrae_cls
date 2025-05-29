@@ -45,7 +45,13 @@ class VertebraeDataset(Dataset):
 
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, int]:
         row = self.df.iloc[idx]
-        tensor_path = self.tensor_dir / f"{row['tensor_path']:05d}.pt"
+        tensor_name = str(row["tensor_path"])
+        if tensor_name.startswith("augmented/"):
+            tensor_name = tensor_name.replace("augmented/", "")
+            tensor_dir = self.tensor_dir / "augmented"
+        else:
+            tensor_dir = self.tensor_dir
+        tensor_path = tensor_dir / f"{int(tensor_name):05d}.pt"
         tensor = torch.load(tensor_path, weights_only=False).squeeze(0)
         label = self.class_mapping[row["injury_type"]]
 
