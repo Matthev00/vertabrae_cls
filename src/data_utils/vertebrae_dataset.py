@@ -6,7 +6,7 @@ import torch
 from torch.utils.data import Dataset
 from torchvision.transforms import Compose
 
-from config import CLASS_NAMES_FILE_PATH
+from src.config import CLASS_NAMES_FILE_PATH
 
 
 class VertebraeDataset(Dataset):
@@ -45,9 +45,9 @@ class VertebraeDataset(Dataset):
 
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, int]:
         row = self.df.iloc[idx]
-        tensor_path = self.tensor_dir / f"{row['tensor_path']}.pt"
-        tensor = torch.load(tensor_path, weights_only=False)
-        label = self.class_mapping(row["injury_type"])
+        tensor_path = self.tensor_dir / f"{row['tensor_path']:05d}.pt"
+        tensor = torch.load(tensor_path, weights_only=False).squeeze(0)
+        label = self.class_mapping[row["injury_type"]]
 
         if self.transform:
             tensor = self.transform(tensor)

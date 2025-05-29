@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Optional
+import torch
 
 import pandas as pd
 from monai.transforms import (
@@ -44,7 +45,7 @@ def default_train_transforms() -> Compose:
                 sigma_range=(5, 8),
                 magnitude_range=(100, 200),
                 prob=1.0,
-                spatial_size=tuple(64),
+                spatial_size=tuple(torch.Size([64, 64, 64])),
             ),
             RandAdjustContrast(prob=0.5, gamma=(0.8, 1.2)),
             RandAffine(
@@ -106,8 +107,12 @@ def get_dataloders(
         tuple[DataLoader, DataLoader]: Training and validation DataLoaders.
     """
     df = read_labels_file(labels_file_path)
+    # train_df, val_df = train_test_split(
+    #     df, train_size=train_split, stratify=df["injury_type"], random_state=42
+    # )
+    # Podmienić
     train_df, val_df = train_test_split(
-        df, train_size=train_split, stratify=df["injury_type"], random_state=42
+        df, train_size=train_split, random_state=42
     )
 
     if train_transforms is None:
@@ -135,6 +140,7 @@ def get_dataloders(
         shuffle=shuffle_train,
         num_workers=num_workers,
         pin_memory=True,
+        drop_last=True,
     )
     val_loader = DataLoader(
         val_dataset,
@@ -144,3 +150,19 @@ def get_dataloders(
         pin_memory=True,
     )
     return train_loader, val_loader
+
+
+if __name__ == "__main__":
+    # Example usage
+    labels_file = Path("data/processed/labels.csv")
+    tensor_directory = Path("data/processed/tensors")
+    train_loader, val_loader = get_dataloders(
+        labels_file_path=labels_file,
+        tensor_dir=tensor_directory,
+        batch_size=2,
+        num_workers=1,
+    )
+    print(f"Train Loader: {len(train_loader)} batches")
+    print(f"Validation Loader: {len(val_loader)} batches")
+    sample = next(iter(train_loader))
+    print(f"Sample batch size: {sample[0].shape}, Labels: {sample[1]}")
