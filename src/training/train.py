@@ -65,7 +65,7 @@ def train(config: dict = None):
 
     model = create_model(
         model_type=config["model_type"],
-        num_classes=config["num_classes"],
+        num_classes=len(class_names),
         model_depth=config.get("model_depth", 18),
         shortcut_type=config.get("shortcut_type", "B"),
         freeze_backbone=config.get("freeze_backbone", True),
@@ -73,7 +73,7 @@ def train(config: dict = None):
     )
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = Adam(model.parameters(), lr=config["lr"])
+    optimizer = Adam(model.parameters(), lr=config["lr"], weight_decay=config["weight_decay"])
     scheduler = build_scheduler(optimizer=optimizer, config=config)
 
     trainer = Trainer(
