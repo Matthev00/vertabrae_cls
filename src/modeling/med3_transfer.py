@@ -41,10 +41,7 @@ class Med3DClassifier(VertebraeClassifier):
             self._load_med3d_weights(model_depth)
 
         if freeze_backbone:
-            for param in self.model.parameters():
-                param.requires_grad = False
-            for param in self.model.fc.parameters():
-                param.requires_grad = True
+            self._freeze_backbone_weights()
 
     def _load_med3d_weights(self, model_depth: int) -> None:
         """
@@ -80,6 +77,15 @@ class Med3DClassifier(VertebraeClassifier):
         print(
             f"[Med3D] Loaded weights with {len(missing)} missing and {len(unexpected)} unexpected keys."
         )
+
+    def _freeze_backbone_weights(self) -> None:
+        """
+        Freeze the backbone weights to prevent them from being updated during training.
+        """
+        for param in self.model.parameters():
+            param.requires_grad = False
+        for param in self.model.fc.parameters():
+            param.requires_grad = True
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model(x)
