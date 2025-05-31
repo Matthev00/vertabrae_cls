@@ -37,7 +37,7 @@ class Med3DClassifier(VertebraeClassifier):
             shortcut_type=shortcut_type,
         )
 
-        if load_pretrained is not None:
+        if load_pretrained:
             self._load_med3d_weights(model_depth)
 
         if freeze_backbone:

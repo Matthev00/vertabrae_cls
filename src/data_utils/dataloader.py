@@ -184,20 +184,3 @@ def get_dataloders(
         pin_memory=True,
     )
     return train_loader, val_loader
-
-
-if __name__ == "__main__":
-    # Example usage
-    labels_file = Path("data/processed/labels.csv")
-    tensor_directory = Path("data/processed/tensors")
-    train_loader, val_loader = get_dataloders(
-        labels_file_path=labels_file,
-        tensor_dir=tensor_directory,
-        batch_size=2,
-        num_workers=1,
-        balance_train=True,
-    )
-    print(f"Train Loader: {len(train_loader)} batches")
-    print(f"Validation Loader: {len(val_loader)} batches")
-    sample = next(iter(train_loader))
-    print(f"Sample batch size: {sample[0].shape}, Labels: {sample[1]}")
