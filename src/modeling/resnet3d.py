@@ -167,7 +167,7 @@ class ResNet(nn.Module):
         self.layer4 = self._make_layer(block, 512, layers[3], shortcut_type, stride=1, dilation=4)
 
         self.avgpool = nn.AdaptiveAvgPool3d((1, 1, 1))
-        self.fc = nn.Linear(512, num_classes)
+        self.fc = nn.Linear(self.inplanes, num_classes)
 
         for m in self.modules():
             if isinstance(m, nn.Conv3d):

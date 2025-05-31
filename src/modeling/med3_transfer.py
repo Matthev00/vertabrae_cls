@@ -3,6 +3,7 @@ from typing import Literal
 import torch
 from huggingface_hub import hf_hub_download
 
+from src.config import MODELS_DIR
 from src.modeling.base_model import VertebraeClassifier
 from src.modeling.resnet3d import get_resnet
 
@@ -63,7 +64,9 @@ class Med3DClassifier(VertebraeClassifier):
             raise ValueError(f"No pretrained weights available for model depth {model_depth}")
 
         repo_id, filename = hf_mapping[model_depth]
-        weight_path = hf_hub_download(repo_id=repo_id, filename=filename)
+        weight_path = hf_hub_download(
+            repo_id=repo_id, filename=filename, cache_dir=MODELS_DIR / "med3d"
+        )
 
         state_dict = torch.load(weight_path, map_location=self.device)
 
