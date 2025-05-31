@@ -35,6 +35,7 @@ dependencies = [
     "simpleitk>=2.5.0",
     "slicer>=0.0.8",
     "torch>=2.7.0",
+    "torchsummary>=1.5.1",
 ]
 
 [tool.black]
