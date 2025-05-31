@@ -36,6 +36,7 @@ dependencies = [
     "slicer>=0.0.8",
     "torch>=2.7.0",
     "torchsummary>=1.5.1",
+    "wandb>=0.19.11",
 ]
 
 [tool.black]

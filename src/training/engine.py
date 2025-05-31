@@ -1,0 +1,197 @@
+from pathlib import Path
+from typing import Optional
+
+import torch
+import wandb
+from sklearn.metrics import balanced_accuracy_score
+from torch import nn
+
+from src.config import MODELS_DIR
+
+
+class Trainer:
+    """
+    Trainer class for supervised classification of 3D data.
+
+    Features:
+    - Logs metrics to Weights & Biases (optional).
+    - Supports learning rate scheduler.
+    - Saves best model checkpoint locally.
+    - Logs final confusion matrix for best model only.
+
+    Args:
+        model (nn.Module): PyTorch model.
+        train_loader (DataLoader): Training data loader.
+        val_loader (DataLoader): Validation data loader.
+        optimizer (Optimizer): Optimizer for training.
+        criterion (nn.Module): Loss function.
+        device (torch.device): Target device (CPU/GPU).
+        run_name (str): Name for saving best model and wandb run.
+        scheduler (Optional[_LRScheduler]): Optional learning rate scheduler.
+        save_dir (Path): Directory for saving checkpoints.
+        log_wandb (bool): Whether to log metrics to Weights & Biases.
+        class_names (Optional[list[str]]): Class labels for confusion matrix.
+        max_epochs (int): Number of training epochs.
+    """
+
+    def __init__(
+        self,
+        model: nn.Module,
+        train_loader: torch.utils.data.DataLoader,
+        val_loader: torch.utils.data.DataLoader,
+        optimizer: torch.optim.Optimizer,
+        criterion: nn.Module,
+        device: torch.device,
+        run_name: str,
+        scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
+        save_dir: Path = MODELS_DIR / "cls",
+        log_wandb: bool = True,
+        class_names: Optional[list[str]] = None,
+        max_epochs: int = 50,
+    ) -> None:
+        self.model = model.to(device)
+        self.train_loader = train_loader
+        self.val_loader = val_loader
+        self.optimizer = optimizer
+        self.scheduler = scheduler
+        self.criterion = criterion
+        self.device = device
+        self.save_dir = save_dir
+        self.save_dir.mkdir(parents=True, exist_ok=True)
+        self.log_wandb = log_wandb
+        self.max_epochs = max_epochs
+        self.run_name = run_name
+        self.class_names = class_names
+
+        self.best_val_loss = float("inf")
+        self.best_model_path = self.save_dir / f"{run_name}_best.pt"
+        self._val_preds: list[int] = []
+        self._val_targets: list[int] = []
+
+        if self.log_wandb:
+            wandb.watch(self.model)
+
+    def train(self):
+        """
+        Main training loop.
+
+        For each epoch:
+        - Runs training and validation
+        - Logs metrics to wandb (if enabled)
+        - Saves best model (lowest validation loss)
+        - Stores predictions and labels to log confusion matrix later
+        """
+        for epoch in range(1, self.max_epochs + 1):
+            train_loss, train_acc, train_bal_acc = self._train_one_epoch()
+            val_loss, val_acc, val_bal_acc, val_preds, val_targets = self._validate()
+
+            if self.scheduler:
+                if isinstance(self.scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
+                    self.scheduler.step(val_loss)
+                else:
+                    self.scheduler.step()
+
+            if self.log_wandb:
+                wandb.log(
+                    {
+                        "epoch": epoch,
+                        "train_loss": train_loss,
+                        "train_acc": train_acc,
+                        "val_loss": val_loss,
+                        "val_acc": val_acc,
+                        "train_bal_acc": train_bal_acc,
+                        "val_balanced_acc": val_bal_acc,
+                        "learning_rate": self.optimizer.param_groups[0]["lr"]
+                    }
+                )
+
+            if val_loss < self.best_val_loss:
+                self.best_val_loss = val_loss
+                torch.save(self.model.state_dict(), self.best_model_path)
+                self._val_preds = val_preds
+                self._val_targets = val_targets
+        if self.log_wandb and self._val_preds and self._val_targets:
+            if not self.class_names:
+                self.class_names = [str(i) for i in sorted(set(self._val_targets))]
+
+            wandb.log(
+                {
+                    "val_confusion_matrix": wandb.plot.confusion_matrix(
+                        y_true=self._val_targets,
+                        preds=self._val_preds,
+                        class_names=self.class_names,
+                    )
+                }
+            )
+
+        print(f"✅ Best model saved at: {self.best_model_path}")
+
+    def _train_one_epoch(self) -> tuple[float, float, float]:
+        """
+        Runs one epoch of training.
+
+        Returns:
+            avg_loss (float): Average training loss.
+            acc (float): Training accuracy.
+            bal_acc (float): Balanced training accuracy.
+        """
+        self.model.train()
+        total_loss, correct, total = 0.0, 0, 0
+        all_preds, all_targets = [], []
+
+        for X, y in self.train_loader:
+            X, y = X.to(self.device), y.to(self.device)
+
+            self.optimizer.zero_grad()
+            outputs = self.model(X)
+            loss = self.criterion(outputs, y)
+            loss.backward()
+            self.optimizer.step()
+
+            total_loss += loss.item() * X.size(0)
+
+            preds = torch.argmax(outputs, dim=1)
+            all_preds.extend(preds.cpu().numpy())
+            all_targets.extend(y.cpu().numpy())
+            correct += (preds == y).sum().item()
+            total += y.size(0)
+
+        avg_loss = total_loss / total
+        acc = correct / total
+        bal_acc = balanced_accuracy_score(all_targets, all_preds)
+        return avg_loss, acc, bal_acc
+
+    @torch.inference_mode()
+    def _validate(self) -> tuple[float, float, float, list[int], list[int]]:
+        """
+        Runs validation on the current model.
+
+        Returns:
+            avg_loss (float): Average validation loss.
+            acc (float): Validation accuracy.
+            bal_acc (float): Balanced validation accuracy.
+            all_preds (list[int]): All predicted labels.
+            all_targets (list[int]): All ground truth labels.
+        """
+        self.model.eval()
+        total_loss, correct, total = 0.0, 0, 0
+        all_preds, all_targets = [], []
+
+        for X, y in self.val_loader:
+            X, y = X.to(self.device), y.to(self.device)
+            outputs = self.model(X)
+            loss = self.criterion(outputs, y)
+
+            preds = torch.argmax(outputs, dim=1)
+            all_preds.extend(preds.cpu().numpy())
+            all_targets.extend(y.cpu().numpy())
+
+            total_loss += loss.item() * X.size(0)
+            correct += (preds == y).sum().item()
+            total += y.size(0)
+
+        avg_loss = total_loss / total
+        acc = correct / total
+        bal_acc = balanced_accuracy_score(all_targets, all_preds)
+
+        return avg_loss, acc, bal_acc, all_preds, all_targets

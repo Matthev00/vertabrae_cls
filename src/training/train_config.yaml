@@ -1,0 +1,16 @@
+model_type: "med3d"        # or "monai", "resnet"
+model_depth: 50
+num_classes: 10
+freeze_backbone: true
+shortcut_type: "B"
+
+batch_size: 4
+max_epochs: 50
+lr: 0.001
+balance_train: true
+
+scheduler:
+  type: "StepLR"
+  step_size: 10
+  gamma: 0.5
+

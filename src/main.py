@@ -13,7 +13,7 @@ def main():
     num_workers = os.cpu_count()
     device = "cuda" if torch.cuda.is_available() else "cpu"
     config = {"model_depth": 18, "freeze_backbone": False}
-    model = create_model(model_type="med3d", num_classes=10, device=device, **config)
+    model = create_model(model_type="monai", num_classes=10, device=device, **config)
 
     train_dataloader, _ = get_dataloders(
         labels_file_path=LABELS_FILE_PATH,
@@ -24,7 +24,7 @@ def main():
     )
     X, y = next(iter(train_dataloader))
     X = X.to(device)
-    y_pred = model.predict()
+    y_pred = model.predict(X)
     print(f"Pred: {y_pred}, label: {y}")
 
 
