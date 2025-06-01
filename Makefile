@@ -50,6 +50,10 @@ prepare_interim_data:
 create_dataset:
 	uv run src/data_utils/dataset_creator.py
 
+## Run experiments
+.PHONY: run_experiments
+run_experiments:
+	uv run src/training/sweep_runner.py 
 
 
 #################################################################################
