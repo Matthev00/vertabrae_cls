@@ -87,7 +87,7 @@ class XLSExtractor:
         df.to_csv(output_path, index=False)
 
 
-if __name__ == "__main__":
+def extract_xls():
     from src.config import INTERIM_DATA_DIR, RAW_DATA_DIR
 
     extractor = XLSExtractor(RAW_DATA_DIR / "raport.xlsx")

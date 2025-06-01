@@ -16,9 +16,6 @@ PYTHON_INTERPRETER = python
 requirements:
 	pip install uv
 	uv sync
-	
-
-
 
 ## Delete all compiled Python files
 .PHONY: clean
@@ -39,16 +36,14 @@ format:
 	black --config pyproject.toml src
 	isort --profile black src
 
+## Prepare dataset
+.PHONY: prepare_dataset
+prepare_dataset:
+	@echo "🔍 Extracting XLS..."
+	uv run python -c "from src.data_utils.XLSExtractor import extract_xls; extract_xls()"
+	@echo "📦 Creating dataset..."
+	uv run python -c "from src.data_utils.dataset_creator import create_dataset; create_dataset()"
 
-## Prepare interim data from xlsx
-.PHONY: prepare_interim_data
-prepare_interim_data:
-	uv run src/data_utils/XLSExtractor.py
-
-## Create Dataset
-.PHONY: create_dataset
-create_dataset:
-	uv run src/data_utils/dataset_creator.py
 
 ## Run experiments
 .PHONY: run_experiments

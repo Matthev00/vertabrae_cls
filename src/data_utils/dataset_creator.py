@@ -13,8 +13,6 @@ from src.config import (
     DICOM_DATA_DIR,
     IS_FULL_RESOLUTION,
     LABELS_FILE_PATH,
-    RAPORT_FILE_PATH,
-    TARGET_TENSOR_SIZE,
     TENSOR_DIR,
     VERTEBRAE_MAP,
 )
@@ -348,6 +346,7 @@ class DatasetCreator:
                     self.save_patient_data(patient_data)
 
 
-if __name__ == "__main__":
+def create_dataset():
+    from src.config import RAPORT_FILE_PATH, TARGET_TENSOR_SIZE
     x = DatasetCreator(RAPORT_FILE_PATH)
     x.create_dataset(target_size=TARGET_TENSOR_SIZE, num_healthy=1)
