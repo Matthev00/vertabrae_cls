@@ -6,7 +6,7 @@ sweep_config = {
     "metric": {"name": "val_balanced_acc", "goal": "maximize"},
     "parameters": {
         "model_type": {"values": ["med3d", "monai", "base"]},
-        "model_depth": {"values": [10, 18, 34, 50, 101, 152, 200]},
+        "model_depth": {"values": [10]},
         "freeze_backbone": {"values": [True, False]},
         "batch_size": {"values": [8, 16, 32]},
         "lr": {"min": 1e-5, "max": 1e-2},
@@ -22,6 +22,13 @@ sweep_config = {
     },
 }
 
+
+def sweep_train():
+    wandb.init(project="Vertebrae Classifier")
+    train(dict(wandb.config))
+
+
 if __name__ == "__main__":
-    sweep_id = wandb.sweep(sweep_config, project="vertebrae-classifier")
-    wandb.agent(sweep_id, function=train, count=100)
+    sweep_id = wandb.sweep(sweep_config, project="Vertebrae Classifier")
+    wandb.agent(sweep_id, function=sweep_train, count=1)
+ 
