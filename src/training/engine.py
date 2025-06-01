@@ -2,10 +2,10 @@ from pathlib import Path
 from typing import Optional
 
 import torch
-import wandb
 from sklearn.metrics import balanced_accuracy_score
 from torch import nn
 
+import wandb
 from src.config import MODELS_DIR
 
 
@@ -106,7 +106,7 @@ class Trainer:
                         "val_acc": val_acc,
                         "train_bal_acc": train_bal_acc,
                         "val_balanced_acc": val_bal_acc,
-                        "learning_rate": self.optimizer.param_groups[0]["lr"]
+                        "learning_rate": self.optimizer.param_groups[0]["lr"],
                     }
                 )
 
@@ -120,7 +120,9 @@ class Trainer:
                 epochs_no_improve += 1
 
             if self.early_stopping and epochs_no_improve >= self.early_stopping_patience:
-                print(f"⏹️ Early stopping at epoch {epoch} (no improvement for {self.early_stopping_patience} epochs)")
+                print(
+                    f"⏹️ Early stopping at epoch {epoch} (no improvement for {self.early_stopping_patience} epochs)"
+                )
                 break
 
         if self.log_wandb and self._val_preds and self._val_targets:

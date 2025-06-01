@@ -1,5 +1,5 @@
-from src.training.train import train
 import wandb
+from src.training.train import train
 
 sweep_config = {
     "method": "bayes",
@@ -33,4 +33,3 @@ def sweep_train():
 if __name__ == "__main__":
     sweep_id = wandb.sweep(sweep_config, project="Vertebrae Classifier")
     wandb.agent(sweep_id, function=sweep_train, count=1)
- 

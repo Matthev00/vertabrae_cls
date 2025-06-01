@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Optional
 
 import pandas as pd
-import torch
 from monai.transforms import (
     NormalizeIntensity,
     Rand3DElastic,
@@ -43,10 +42,14 @@ def default_train_transforms() -> Compose:
         [
             NormalizeIntensity(channel_wise=True),
             Rand3DElastic(
-                sigma_range=(5, 8),
-                magnitude_range=(100, 200),
-                prob=1.0,
-                spatial_size=tuple(torch.Size([64, 64, 64])),
+                sigma_range=(2, 4),
+                magnitude_range=(2, 8),
+                prob=0.5,
+                spacing=(10, 10, 10),
+                rotate_range=(0, 0, 0),
+                scale_range=(0, 0, 0),
+                translate_range=(0, 0, 0),
+                padding_mode="border",
             ),
             RandAdjustContrast(prob=0.5, gamma=(0.8, 1.2)),
             RandAffine(
@@ -54,12 +57,14 @@ def default_train_transforms() -> Compose:
                 rotate_range=(0.1, 0.1, 0.1),
                 translate_range=(0.05, 0.05, 0.05),
                 scale_range=(0.9, 1.1),
+                padding_mode="border",
             ),
             RandRotate(
                 prob=0.5,
                 range_x=(-0.1, 0.1),
                 range_y=(-0.1, 0.1),
                 range_z=(-0.1, 0.1),
+                padding_mode="border",
             ),
         ]
     )
