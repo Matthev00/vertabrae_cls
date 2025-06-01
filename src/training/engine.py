@@ -44,6 +44,8 @@ class Trainer:
         device: torch.device,
         run_name: str,
         scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
+        early_stopping: bool = True,
+        early_stopping_patience: int = 10,
         save_dir: Path = MODELS_DIR / "cls",
         log_wandb: bool = True,
         class_names: Optional[list[str]] = None,
@@ -54,6 +56,8 @@ class Trainer:
         self.val_loader = val_loader
         self.optimizer = optimizer
         self.scheduler = scheduler
+        self.early_stopping = early_stopping
+        self.early_stopping_patience = early_stopping_patience
         self.criterion = criterion
         self.device = device
         self.save_dir = save_dir
@@ -81,6 +85,7 @@ class Trainer:
         - Saves best model (lowest validation loss)
         - Stores predictions and labels to log confusion matrix later
         """
+        epochs_no_improve = 0
         for epoch in range(1, self.max_epochs + 1):
             train_loss, train_acc, train_bal_acc = self._train_one_epoch()
             val_loss, val_acc, val_bal_acc, val_preds, val_targets = self._validate()
@@ -110,6 +115,14 @@ class Trainer:
                 torch.save(self.model.state_dict(), self.best_model_path)
                 self._val_preds = val_preds
                 self._val_targets = val_targets
+                epochs_no_improve = 0
+            else:
+                epochs_no_improve += 1
+
+            if self.early_stopping and epochs_no_improve >= self.early_stopping_patience:
+                print(f"⏹️ Early stopping at epoch {epoch} (no improvement for {self.early_stopping_patience} epochs)")
+                break
+
         if self.log_wandb and self._val_preds and self._val_targets:
             if not self.class_names:
                 self.class_names = [str(i) for i in sorted(set(self._val_targets))]

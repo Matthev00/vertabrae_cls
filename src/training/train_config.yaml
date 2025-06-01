@@ -3,9 +3,11 @@ model_depth: 10
 num_classes: 10
 freeze_backbone: true
 shortcut_type: "B"
+early_stopping_patience: 10
+early_stopping: True
 
 batch_size: 2
-max_epochs: 2
+max_epochs: 20
 lr: 0.001
 weight_decay: 0.01
 balance_train: true

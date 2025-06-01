@@ -19,6 +19,8 @@ sweep_config = {
         "weight_decay": {"values": [0.0, 1e-5, 1e-4]},
         "shortcut_type": {"value": "B"},
         "balance_train": {"value": True},
+        "early_stopping_patience": {"value": 10},
+        "early_stopping": {"value": 10},
     },
 }
 
