@@ -1,8 +1,16 @@
+import logging
 import os
 import random
 
 import numpy as np
 import torch
+
+
+def get_logger(name: str) -> logging.Logger:
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    return logging.getLogger(name)
 
 
 def set_seed(seed: int) -> None:

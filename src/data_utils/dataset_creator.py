@@ -18,6 +18,9 @@ from src.config import (
 )
 from src.data_utils.dicom_reader import DICOMReader
 from src.data_utils.vertebra_extractor import VertebraExtractor
+from src.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class DatasetCreator:
@@ -76,7 +79,8 @@ class DatasetCreator:
                         }
                     )
             except Exception as e:
-                print(f"Error processing {vertebra} in {dir_name}: {e}")
+                logger.error(f"Error ijuried processing {vertebra} in {dir_name}: {e}")
+
         return injured_data
 
     def _process_healthy_vertebrae(
@@ -132,11 +136,11 @@ class DatasetCreator:
                         }
                     )
             except Exception as e:
-                print(f"Error processing {vertebra} in {dir_name}: {e}")
+                logger.error(f"Error processing healthy {vertebra} in {dir_name}: {e}")
 
         if len(healthy_data) < num_healthy:
-            print(
-                f"Warning: Could only extract {len(healthy_data)} healthy vertebrae out of {num_healthy} requested for {dir_name}."
+            logger.warning(
+                f"Only {len(healthy_data)} healthy vertebrae extracted out of {num_healthy} requested for patient {dir_name}."
             )
 
         return healthy_data
@@ -168,6 +172,7 @@ class DatasetCreator:
         dicom_reader = DICOMReader(dir_path)
         tensor, description, metadata = dicom_reader.process_dicom_series()
         vertebra_extractor = VertebraExtractor(IS_FULL_RESOLUTION, DEVICE)
+        logger.info(f"Processing patient: {dir_name}")
 
         patient_data.extend(
             self._process_injured_vertebrae(
@@ -348,5 +353,6 @@ class DatasetCreator:
 
 def create_dataset():
     from src.config import RAPORT_FILE_PATH, TARGET_TENSOR_SIZE
+
     x = DatasetCreator(RAPORT_FILE_PATH)
     x.create_dataset(target_size=TARGET_TENSOR_SIZE, num_healthy=1)
