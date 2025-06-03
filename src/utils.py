@@ -1,16 +1,29 @@
 import logging
 import os
 import random
+from pathlib import Path
 
 import numpy as np
 import torch
 
 
-def get_logger(name: str) -> logging.Logger:
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    return logging.getLogger(name)
+def get_logger(name: str, log_path: Path = Path("logs/log.txt")) -> logging.Logger:
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+
+    if not logger.handlers:
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_path, mode="a")
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+
+    return logger
 
 
 def set_seed(seed: int) -> None:
