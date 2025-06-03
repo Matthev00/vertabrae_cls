@@ -51,16 +51,25 @@ class XLSExtractor:
     def _extract_records(self) -> None:
         """
         Extracts records from the DataFrame and stores them in the records list.
+        Each record includes patient ID, associated traumas, and starting row index.
         """
         current_traumas = []
         current_ii = None
+        current_row_index = None
 
-        for _, row in self.data.iterrows():
+        for index, row in self.data.iterrows():
             if pd.notna(row["I.I."]):
                 if current_traumas:
-                    self.records.append({"I.I": f"{current_ii}", "traumas": current_traumas})
+                    self.records.append(
+                        {
+                            "I.I": f"{current_ii}",
+                            "traumas": current_traumas,
+                            "start_row": current_row_index + 2,
+                        }
+                    )
                 current_traumas = []
                 current_ii = row["I.I."]
+                current_row_index = index
 
             if pd.notna(row["Poziom"]):
                 levels = re.split(r"[/\-]", row["Poziom"])
@@ -71,7 +80,13 @@ class XLSExtractor:
                             current_traumas.append((level, trauma_type))
 
         if current_traumas:
-            self.records.append({"I.I": f"{current_ii}", "traumas": current_traumas})
+            self.records.append(
+                {
+                    "I.I": f"{current_ii}",
+                    "traumas": current_traumas,
+                    "start_row": current_row_index + 2,
+                }
+            )
 
     def extract_and_save(self, output_path: Path) -> None:
         """
@@ -90,5 +105,9 @@ class XLSExtractor:
 def extract_xls():
     from src.config import INTERIM_DATA_DIR, RAW_DATA_DIR
 
-    extractor = XLSExtractor(RAW_DATA_DIR / "raport.xlsx")
+    extractor = XLSExtractor(RAW_DATA_DIR / "raport1.xlsx")
     extractor.extract_and_save(INTERIM_DATA_DIR / "extracted_data.csv")
+
+
+if __name__ == "__main__":
+    extract_xls()

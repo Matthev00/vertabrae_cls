@@ -20,7 +20,7 @@ from src.data_utils.dicom_reader import DICOMReader
 from src.data_utils.vertebra_extractor import VertebraExtractor
 from src.utils import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, Path("logs/dataset.txt"))
 
 
 class DatasetCreator:
@@ -75,7 +75,7 @@ class DatasetCreator:
                             "vertebra": vertebra,
                             "injury_type": injury_type,
                             "target_tensor": target_tensor,
-                            "II": dir_name.split(" ")[0],
+                            "II": dir_name,
                         }
                     )
             except Exception as e:
@@ -132,7 +132,7 @@ class DatasetCreator:
                             "vertebra": vertebra,
                             "injury_type": "H",
                             "target_tensor": target_tensor,
-                            "II": dir_name.split(" ")[0],
+                            "II": dir_name,
                         }
                     )
             except Exception as e:
@@ -172,7 +172,6 @@ class DatasetCreator:
         dicom_reader = DICOMReader(dir_path)
         tensor, description, metadata = dicom_reader.process_dicom_series()
         vertebra_extractor = VertebraExtractor(IS_FULL_RESOLUTION, DEVICE)
-        logger.info(f"Processing patient: {dir_name}")
 
         patient_data.extend(
             self._process_injured_vertebrae(
@@ -194,28 +193,29 @@ class DatasetCreator:
 
         return patient_data
 
-    def extract_dir_names(self, raw: str) -> list[str]:
+    def extract_dir_name(self, dir_id: str) -> str:
         """
-        Extracts dir name from raw name
+        Finds a single directory in DICOM_DATA_DIR whose name contains the given dir_id
+        as the second space-separated component.
 
         Args:
-            raw (str): raw name.
+            dir_id (str): The directory ID to match (e.g. '303').
 
-        Returns
-            list[dict]: List of names extracted from raw name.
+        Returns:
+            str: The matching directory name.
+
+        Raises:
+            FileNotFoundError: If no matching directory is found.
         """
-        parts = raw.split()
-        if "," in raw:
-            prefix = " ".join(parts[:2])
-            numbers = parts[2].split(",")
-            if len(parts) == 4:
-                numbers += [parts[3]]
-            else:
-                numbers[-1] = numbers[-1].strip(",")
-                numbers = [n.strip() for n in numbers]
-                numbers[-1] += " " + parts[-1]
-            return [f"{prefix} {n.strip()} {parts[-1]}" for n in numbers[:-1]]
-        return [raw]
+        for path in DICOM_DATA_DIR.iterdir():
+            if not path.is_dir():
+                continue
+            parts = path.name.split()
+            if len(parts) >= 2 and parts[1] == dir_id:
+                return str(path.name)
+        raise FileNotFoundError(
+            f"No directory found in {DICOM_DATA_DIR} with ID '{dir_id}' as second part."
+        )
 
     def get_max_index(self) -> int:
         """
@@ -247,7 +247,7 @@ class DatasetCreator:
                 - "target_tensor" (torch.Tensor): The extracted vertebra tensor.
                 - "vertebra" (str): Name of the vertebra (e.g., "L1").
                 - "injury_type" (str): Injury classification (e.g., "A1").
-                - "II" (str): Patient ID prefix.
+                - "II" (str): Patient ID.
         """
         labels_file_exists = LABELS_FILE_PATH.exists()
         next_index = self.get_max_index() + 1
@@ -335,20 +335,24 @@ class DatasetCreator:
             reader = csv.reader(f)
             next(reader)
             for row in tqdm(reader):
-                raw_name, raw_injuries = row
-                raw_name = raw_name.strip('"')
-                dir_names = self.extract_dir_names(raw_name)
+                _, raw_injuries, dir_id = row
+                logger.info(f"Processing dir id:{dir_id}.")
+                try:
+                    dir_name = self.extract_dir_name(dir_id)
+                except FileNotFoundError as e:
+                    logger.error(e)
+                    continue
+                if dir_name in processed_patients:
+                    continue
                 injuries = ast.literal_eval(raw_injuries)
-                for name in dir_names:
-                    if name.split(" ")[0] in processed_patients:
-                        continue
-                    patient_data = self.process_patient(
-                        dir_name=name,
-                        injuried_vertebrae=injuries,
-                        target_size=target_size,
-                        num_healthy=num_healthy,
-                    )
-                    self.save_patient_data(patient_data)
+
+                patient_data = self.process_patient(
+                    dir_name=dir_name,
+                    injuried_vertebrae=injuries,
+                    target_size=target_size,
+                    num_healthy=num_healthy,
+                )
+                self.save_patient_data(patient_data)
 
 
 def create_dataset():
@@ -356,3 +360,7 @@ def create_dataset():
 
     x = DatasetCreator(RAPORT_FILE_PATH)
     x.create_dataset(target_size=TARGET_TENSOR_SIZE, num_healthy=1)
+
+
+if __name__ == "__main__":
+    create_dataset()
