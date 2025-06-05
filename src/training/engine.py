@@ -2,9 +2,18 @@ from pathlib import Path
 from typing import Optional
 
 import torch
-from sklearn.metrics import balanced_accuracy_score
 from torch import nn
-
+from torchmetrics.classification import (
+    MulticlassAccuracy,
+    MulticlassMatthewsCorrCoef,
+    MulticlassCohenKappa,
+    MulticlassJaccardIndex,
+    MulticlassPrecision,
+    MulticlassRecall,
+    MulticlassF1Score,
+    MulticlassStatScores,
+)
+import copy 
 import wandb
 from src.config import MODELS_DIR
 
@@ -40,7 +49,7 @@ class Trainer:
         train_loader: torch.utils.data.DataLoader,
         val_loader: torch.utils.data.DataLoader,
         optimizer: torch.optim.Optimizer,
-        criterion: nn.Module,
+        criterion: nn.CrossEntropyLoss,
         device: torch.device,
         run_name: str,
         scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
@@ -66,6 +75,20 @@ class Trainer:
         self.max_epochs = max_epochs
         self.run_name = run_name
         self.class_names = class_names
+        num_classes = len(self.class_names) if class_names is not None else 9
+
+        average = "macro"
+        self.train_metrics: dict[str, MulticlassStatScores] = {
+            "acc": MulticlassAccuracy(num_classes=num_classes).to(device),
+            "balanced_acc": MulticlassAccuracy(num_classes=num_classes, average=average),
+            "mcc": MulticlassMatthewsCorrCoef(num_classes=num_classes).to(device),
+            "kappa": MulticlassCohenKappa(num_classes=num_classes).to(device),
+            "jaccard": MulticlassJaccardIndex(num_classes=num_classes, average=average).to(device),
+            "precision": MulticlassPrecision(num_classes=num_classes, average=average).to(device),
+            "recall": MulticlassRecall(num_classes=num_classes, average=average).to(device),
+            "f1": MulticlassF1Score(num_classes=num_classes, average=average).to(device),
+        }
+        self.val_metrics: dict[str, MulticlassStatScores] = {k: copy.deepcopy(v).to(device) for k, v in self.train_metrics.items()}
 
         self.best_val_loss = float("inf")
         self.best_model_path = self.save_dir / f"{run_name}_best.pt"
@@ -87,8 +110,9 @@ class Trainer:
         """
         epochs_no_improve = 0
         for epoch in range(1, self.max_epochs + 1):
-            train_loss, train_acc, train_bal_acc = self._train_one_epoch()
-            val_loss, val_acc, val_bal_acc, val_preds, val_targets = self._validate()
+            train_loss, train_metrics = self._train_one_epoch()
+            val_loss, val_preds, val_targets, val_metrics = self._validate()
+
 
             if self.scheduler:
                 if isinstance(self.scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
@@ -101,12 +125,10 @@ class Trainer:
                     {
                         "epoch": epoch,
                         "train_loss": train_loss,
-                        "train_acc": train_acc,
                         "val_loss": val_loss,
-                        "val_acc": val_acc,
-                        "train_bal_acc": train_bal_acc,
-                        "val_balanced_acc": val_bal_acc,
                         "learning_rate": self.optimizer.param_groups[0]["lr"],
+                        **train_metrics,
+                        **val_metrics,
                     }
                 )
 
@@ -141,18 +163,22 @@ class Trainer:
 
         print(f"✅ Best model saved at: {self.best_model_path}")
 
-    def _train_one_epoch(self) -> tuple[float, float, float]:
+    def _train_one_epoch(self) -> tuple[float, dict[str, torch.Tensor]]:
         """
         Runs one epoch of training.
 
         Returns:
             avg_loss (float): Average training loss.
-            acc (float): Training accuracy.
-            bal_acc (float): Balanced training accuracy.
+            metrics_out (dict[str, torch.Tensor]): Dictionary of computed validation metrics,
+                including accuracy, precision, recall, F1-score, MCC, Cohen's kappa,
+                Jaccard index and balanced accuracy (macro-averaged).
         """
         self.model.train()
-        total_loss, correct, total = 0.0, 0, 0
+        total_loss = 0.0
         all_preds, all_targets = [], []
+
+        for metric in self.train_metrics.values():
+            metric.reset()
 
         for X, y in self.train_loader:
             X, y = X.to(self.device), y.to(self.device)
@@ -166,31 +192,40 @@ class Trainer:
             total_loss += loss.item() * X.size(0)
 
             preds = torch.argmax(outputs, dim=1)
-            all_preds.extend(preds.cpu().numpy())
-            all_targets.extend(y.cpu().numpy())
-            correct += (preds == y).sum().item()
-            total += y.size(0)
+            all_preds.append(preds)
+            all_targets.append(y)
 
-        avg_loss = total_loss / total
-        acc = correct / total
-        bal_acc = balanced_accuracy_score(all_targets, all_preds)
-        return avg_loss, acc, bal_acc
+        preds_all = torch.cat(all_preds)
+        targets_all = torch.cat(all_targets)
+
+        for metric in self.train_metrics.values():
+            preds = preds_all.to(metric.device)
+            targets = targets_all.to(metric.device)
+            metric.update(preds, targets)
+
+        avg_loss = total_loss / len(self.train_loader.dataset)
+        metrics_out = {f"train_{k}": m.compute().item() for k, m in self.train_metrics.items()}
+        return avg_loss, metrics_out
 
     @torch.inference_mode()
-    def _validate(self) -> tuple[float, float, float, list[int], list[int]]:
+    def _validate(self) -> tuple[float, list[int], list[int], dict[str, torch.Tensor]]:
         """
         Runs validation on the current model.
 
         Returns:
-            avg_loss (float): Average validation loss.
-            acc (float): Validation accuracy.
-            bal_acc (float): Balanced validation accuracy.
-            all_preds (list[int]): All predicted labels.
-            all_targets (list[int]): All ground truth labels.
+            avg_loss (float): Average validation loss over the validation dataset.
+            all_preds (list[int]): Flattened list of predicted class indices.
+            all_targets (list[int]): Flattened list of ground truth class indices.
+            metrics_out (dict[str, torch.Tensor]): Dictionary of computed validation metrics,
+                including accuracy, precision, recall, F1-score, MCC, Cohen's kappa,
+                Jaccard index and balanced accuracy (macro-averaged).
         """
         self.model.eval()
-        total_loss, correct, total = 0.0, 0, 0
+        total_loss = 0.0
         all_preds, all_targets = [], []
+
+        for metric in self.val_metrics.values():
+            metric.reset()
 
         for X, y in self.val_loader:
             X, y = X.to(self.device), y.to(self.device)
@@ -198,15 +233,20 @@ class Trainer:
             loss = self.criterion(outputs, y)
 
             preds = torch.argmax(outputs, dim=1)
-            all_preds.extend(preds.cpu().numpy())
-            all_targets.extend(y.cpu().numpy())
 
             total_loss += loss.item() * X.size(0)
-            correct += (preds == y).sum().item()
-            total += y.size(0)
+            all_preds.append(preds)
+            all_targets.append(y)
 
-        avg_loss = total_loss / total
-        acc = correct / total
-        bal_acc = balanced_accuracy_score(all_targets, all_preds)
+        preds_all = torch.cat(all_preds)
+        targets_all = torch.cat(all_targets)
 
-        return avg_loss, acc, bal_acc, all_preds, all_targets
+        for metric in self.val_metrics.values():
+            preds = preds_all.to(metric.device)
+            targets = targets_all.to(metric.device)
+            metric.update(preds, targets)
+
+        avg_loss = total_loss / len(self.val_loader.dataset)
+        metrics_out = {f"val_{k}": m.compute().item() for k, m in self.val_metrics.items()}
+
+        return avg_loss, preds_all.cpu().tolist(), targets_all.cpu().tolist(), metrics_out
