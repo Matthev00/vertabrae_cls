@@ -35,7 +35,6 @@ class VertebraExtractor:
         Args:
             is_full_resolution (bool): If True, use full resolution model.
             device (torch.device): The device to run the model on.
-
         """
         pixdim = (1.5, 1.5, 1.5) if is_full_resolution else (3.0, 3.0, 3.0)
         self.transforms = Compose(
@@ -52,6 +51,9 @@ class VertebraExtractor:
         self.device = device
         self.is_full_resolution = is_full_resolution
         self.model = self._load_model()
+
+        self.segmentation: torch.Tensor | None = None
+        self.transformed_input_tensor: torch.Tensor | None = None
 
     def _load_model(self) -> torch.nn.Module:
         """
@@ -236,8 +238,12 @@ class VertebraExtractor:
         if target_size is None:
             labels.extend([max(18, target_label - 1), min(41, target_label + 1)])
 
-        segmentation, input_tensor = self.get_segmentation(input_tensor, metadata)
-        mask = np.isin(segmentation, labels).astype(np.uint8)
+        if self.segmentation is None or self.transformed_input_tensor is None:
+            self.segmentation, self.transformed_input_tensor = self.get_segmentation(
+                input_tensor, metadata
+            )
+
+        mask = np.isin(self.segmentation, labels).astype(np.uint8)
 
         coords = np.array(mask.nonzero())
         if coords.shape[1] == 0:
@@ -248,7 +254,7 @@ class VertebraExtractor:
         zmax, ymax, xmax = coords.max(axis=1)
 
         if target_size is None:
-            output = input_tensor[:, :, zmin:zmax, ymin:ymax, xmin:xmax]
+            output = self.transformed_input_tensor[:, :, zmin:zmax, ymin:ymax, xmin:xmax]
             return output.squeeze().detach().cpu()
 
-        return self._resize_vertebrae_tensor(input_tensor, coords, target_size)
+        return self._resize_vertebrae_tensor(self.transformed_input_tensor, coords, target_size)
