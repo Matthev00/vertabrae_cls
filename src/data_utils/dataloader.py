@@ -122,6 +122,7 @@ def get_dataloders(
     shuffle_train: bool = True,
     train_split: float = 0.8,
     balance_train: bool = False,
+    binary_class: bool = False
 ) -> tuple[DataLoader, DataLoader]:
     """
     Creates DataLoaders for training and validation datasets.
@@ -136,6 +137,7 @@ def get_dataloders(
         shuffle_train (bool): Whether to shuffle training data.
         train_split (float): Proportion of data to use for training.
         balance_train (bool): Whether to balance the training dataset.
+        binary_class (bool): Wether to use only Helathy Injuried classes or original
 
     Returns:
         tuple[DataLoader, DataLoader]: Training and validation DataLoaders.
@@ -166,11 +168,13 @@ def get_dataloders(
         df=train_df,
         tensor_dir=tensor_dir,
         transform=train_transforms,
+        binary_class=binary_class
     )
     val_dataset = VertebraeDataset(
         df=val_df,
         tensor_dir=tensor_dir,
         transform=val_transforms,
+        binary_class=binary_class
     )
 
     train_loader = DataLoader(

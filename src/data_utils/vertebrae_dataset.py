@@ -11,7 +11,7 @@ from src.config import CLASS_NAMES_FILE_PATH
 
 class VertebraeDataset(Dataset):
     def __init__(
-        self, df: pd.DataFrame, tensor_dir: Path, transform: Optional[Compose] = None
+        self, df: pd.DataFrame, tensor_dir: Path, binary_class: bool, transform: Optional[Compose] = None, 
     ) -> None:
         """
         VertebraeDataset is a PyTorch Dataset for loading vertebrae data.
@@ -19,12 +19,14 @@ class VertebraeDataset(Dataset):
         Args:
             df (pd.DataFrame): DataFrame containing metadata for the dataset.
             tensor_dir (Path): Directory where tensor files are stored.
+            binary_class (bool): Wether to use only Helathy Injuried classes or original
             transform (Optional[Compose]): Optional transformations to apply to the data.
         """
         self.df = df.reset_index(drop=True)
         self.tensor_dir = tensor_dir
         self.transform = transform
         self.class_mapping = self._load_class_mapping(CLASS_NAMES_FILE_PATH)
+        self.binary_class = binary_class
 
     def __len__(self):
         return len(self.df)
@@ -57,5 +59,8 @@ class VertebraeDataset(Dataset):
 
         if self.transform:
             tensor = self.transform(tensor)
+        
+        if self.binary_class:
+            return tensor, torch.tensor(label != 9, dtype=torch.float)
 
-        return tensor, label
+        return tensor, torch.tensor(label, dtype=torch.long)
