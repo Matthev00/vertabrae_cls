@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Literal
 
 import torch
 
@@ -26,16 +27,16 @@ class InjuryDetector:
 
     def __init__(
         self,
-        cls_type: str,
+        cls_type: Literal["med3d", "monai", "base"],
         cls_path: Path,
-        num_classes: int = 9,
+        num_classes: int = 10,
         **model_kwargs: dict,
     ):
         """
         Initialize the injury detector with a specified classifier and weights.
 
         Args:
-            cls_type (str): Type of classifier to instantiate (e.g. "segresnet").
+            cls_type (str): Type of classifier to use ("med3d", "monai", "base").
             cls_path (Path): Path to the pretrained weights (.pth file).
             num_classes (int): Number of output classes for classification. Defaults to 9.
             **model_kwargs (dict): Additional keyword arguments passed to the model factory.
@@ -89,6 +90,8 @@ class InjuryDetector:
             if vt is None:
                 unfound_vertebrae.add(vertebra)
                 continue
+            if vt.dim() == 5 and vt.shape[0] == 1:
+                vt = vt.squeeze(0)
             vertebra_tensors.append(vt)
             vertebra_names.append(vertebra)
 

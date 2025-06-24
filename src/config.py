@@ -13,7 +13,7 @@ RAW_DATA_DIR = DATA_DIR / "raw"
 INTERIM_DATA_DIR = DATA_DIR / "interim"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 EXTERNAL_DATA_DIR = DATA_DIR / "external"
-DICOM_DATA_DIR = Path("/media/mateusz/DATA/downloads/inz")
+DICOM_DATA_DIR = Path("/media/mateusz/T7/Praca_Inzynierska/Anonimized/")
 RAPORT_FILE_PATH = INTERIM_DATA_DIR / "extracted_data.csv"
 LABELS_FILE_PATH = PROCESSED_DATA_DIR / "labels.csv"
 CLASS_NAMES_FILE_PATH = PROCESSED_DATA_DIR / "class_names.txt"
@@ -21,6 +21,7 @@ TENSOR_DIR = PROCESSED_DATA_DIR / "tensors"
 
 MODELS_DIR = PROJ_ROOT / "models"
 SEG_MODEL_DIR = MODELS_DIR / "monai_seg"
+CLS_MODEL_DIR = MODELS_DIR / "cls"
 
 REPORTS_DIR = PROJ_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
