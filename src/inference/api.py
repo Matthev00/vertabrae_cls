@@ -71,6 +71,12 @@ def predict_fake_from_patient_id(
     from random import choice, sample, uniform
 
     vertebrae = [
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
         "C7",
         "Th1",
         "Th2",
