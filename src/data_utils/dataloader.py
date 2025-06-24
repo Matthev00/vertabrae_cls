@@ -122,7 +122,7 @@ def get_dataloders(
     shuffle_train: bool = True,
     train_split: float = 0.8,
     balance_train: bool = False,
-    binary_class: bool = False
+    binary_class: bool = False,
 ) -> tuple[DataLoader, DataLoader]:
     """
     Creates DataLoaders for training and validation datasets.
@@ -165,16 +165,10 @@ def get_dataloders(
         )
 
     train_dataset = VertebraeDataset(
-        df=train_df,
-        tensor_dir=tensor_dir,
-        transform=train_transforms,
-        binary_class=binary_class
+        df=train_df, tensor_dir=tensor_dir, transform=train_transforms, binary_class=binary_class
     )
     val_dataset = VertebraeDataset(
-        df=val_df,
-        tensor_dir=tensor_dir,
-        transform=val_transforms,
-        binary_class=binary_class
+        df=val_df, tensor_dir=tensor_dir, transform=val_transforms, binary_class=binary_class
     )
 
     train_loader = DataLoader(

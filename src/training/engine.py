@@ -1,3 +1,4 @@
+import copy
 from pathlib import Path
 from typing import Optional
 
@@ -5,15 +6,15 @@ import torch
 from torch import nn
 from torchmetrics.classification import (
     MulticlassAccuracy,
-    MulticlassMatthewsCorrCoef,
     MulticlassCohenKappa,
+    MulticlassF1Score,
     MulticlassJaccardIndex,
+    MulticlassMatthewsCorrCoef,
     MulticlassPrecision,
     MulticlassRecall,
-    MulticlassF1Score,
     MulticlassStatScores,
 )
-import copy 
+
 import wandb
 from src.config import MODELS_DIR
 
@@ -88,7 +89,9 @@ class Trainer:
             "recall": MulticlassRecall(num_classes=num_classes, average=average).to(device),
             "f1": MulticlassF1Score(num_classes=num_classes, average=average).to(device),
         }
-        self.val_metrics: dict[str, MulticlassStatScores] = {k: copy.deepcopy(v).to(device) for k, v in self.train_metrics.items()}
+        self.val_metrics: dict[str, MulticlassStatScores] = {
+            k: copy.deepcopy(v).to(device) for k, v in self.train_metrics.items()
+        }
 
         self.best_val_loss = float("inf")
         self.best_model_path = self.save_dir / f"{run_name}_best.pt"
@@ -112,7 +115,6 @@ class Trainer:
         for epoch in range(1, self.max_epochs + 1):
             train_loss, train_metrics = self._train_one_epoch()
             val_loss, val_preds, val_targets, val_metrics = self._validate()
-
 
             if self.scheduler:
                 if isinstance(self.scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):

@@ -11,7 +11,11 @@ from src.config import CLASS_NAMES_FILE_PATH
 
 class VertebraeDataset(Dataset):
     def __init__(
-        self, df: pd.DataFrame, tensor_dir: Path, binary_class: bool, transform: Optional[Compose] = None, 
+        self,
+        df: pd.DataFrame,
+        tensor_dir: Path,
+        binary_class: bool,
+        transform: Optional[Compose] = None,
     ) -> None:
         """
         VertebraeDataset is a PyTorch Dataset for loading vertebrae data.
@@ -59,7 +63,7 @@ class VertebraeDataset(Dataset):
 
         if self.transform:
             tensor = self.transform(tensor)
-        
+
         if self.binary_class:
             return tensor, torch.tensor(label != 9, dtype=torch.float)
 
