@@ -1,25 +1,33 @@
-site_name: vertebrae_cls
+site_name: Vertebrae Classifier
 theme:
   name: "material"
   palette:
-    primary: 'indigo'
-    accent: 'indigo'
-  font:
-    text: 'Roboto'
-    code: 'Roboto Mono'
+    - scheme: default
+      primary: indygo
+      toggle:
+        icon: material/weather-night
+        name: Tryb ciemny
+    - scheme: slate
+      primary: indygo
+      toggle:
+        icon: material/weather-sunny
+        name: Tryb jasny
 plugins:
-  - search
   - mkdocstrings:
       handlers:
         python:
           options:
             docstring_style: google
+            show_root_heading: true
+            merge_init_into_class: true
+            group_by_category: true     
+            show_source: true
+            members_order: source
 nav:
   - Home: index.md
   - Getting Started: getting-started.md
   - Commands: commands.md
   - Code Docs:
-      - Evaluation: code/evaluation.md
       - Data preparation: code/data_preparation.md
       - Training: code/training.md
       - Modeling: code/modeling.md

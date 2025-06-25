@@ -51,6 +51,29 @@ run_experiments:
 	uv run src/training/sweep_runner.py 
 
 
+## Start Api
+.PHONY: start_api
+start_api:
+	uv run -- uvicorn src.inference.api:app --reload
+
+
+## Run App
+.PHONY: run_app
+run_app:
+	uv run streamlit run src/inference/app.py 
+
+
+## Serve mkdocs
+.PHONY: serve_docs
+serve_docs:
+	cd docs && mkdocs serve
+
+## Deploy mkdocs
+.PHONY: deploy_docs
+deploy_docs:
+	cd docs && mkdocs gh-deploy --force
+
+
 #################################################################################
 # Self Documenting Commands                                                     #
 #################################################################################
