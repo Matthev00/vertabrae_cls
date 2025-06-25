@@ -22,7 +22,7 @@
     
     
       
-        <title>Commands - vertebrae_cls</title>
+        <title>Commands - Vertebrae Classifier</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#commands" class="md-skip">
+        <a href="#makefile-commands" class="md-skip">
           Skip to content
         </a>
       
@@ -92,7 +92,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="vertebrae_cls" class="md-header__button md-logo" aria-label="vertebrae_cls" data-md-component="logo">
+    <a href=".." title="Vertebrae Classifier" class="md-header__button md-logo" aria-label="Vertebrae Classifier" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -106,7 +106,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            vertebrae_cls
+            Vertebrae Classifier
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -176,13 +176,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="vertebrae_cls" class="md-nav__button md-logo" aria-label="vertebrae_cls" data-md-component="logo">
+    <a href=".." title="Vertebrae Classifier" class="md-nav__button md-logo" aria-label="Vertebrae Classifier" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    vertebrae_cls
+    Vertebrae Classifier
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -288,100 +288,208 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#available-commands" class="md-nav__link">
+  <a href="#dependency-management" class="md-nav__link">
     <span class="md-ellipsis">
-      Available Commands
+      📦 Dependency Management
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Available Commands">
+    <nav class="md-nav" aria-label="📦 Dependency Management">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-install-python-dependencies" class="md-nav__link">
+  <a href="#install-python-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Install Python Dependencies
+      ✅ Install Python Dependencies
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-delete-compiled-python-files" class="md-nav__link">
+  <a href="#delete-compiled-python-files" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Delete Compiled Python Files
+      🧹 Delete Compiled Python Files
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-quality-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧼 Code Quality Tools
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧼 Code Quality Tools">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lint-the-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔍 Lint the Code
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-lint-the-code" class="md-nav__link">
+  <a href="#format-the-code" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Lint the Code
+      🎨 Format the Code
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      📂 Data Workflow
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📂 Data Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prepare-interim-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 Prepare Interim Data
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-format-the-code" class="md-nav__link">
+  <a href="#create-dataset" class="md-nav__link">
     <span class="md-ellipsis">
-      4. Format the Code
+      📊 Create Dataset
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#training-experiments" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧠 Training &amp; Experiments
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧠 Training &amp; Experiments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-experiments" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Run Experiments
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-app" class="md-nav__link">
+    <span class="md-ellipsis">
+      🌐 API &amp; App
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🌐 API &amp; App">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#start-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔌 Start API
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#5-prepare-interim-data" class="md-nav__link">
+  <a href="#run-app" class="md-nav__link">
     <span class="md-ellipsis">
-      5. Prepare Interim Data
+      🖼️ Run App
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Documentation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#serve-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 Serve Docs
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#6-create-dataset" class="md-nav__link">
+  <a href="#deploy-docs" class="md-nav__link">
     <span class="md-ellipsis">
-      6. Create Dataset
+      🚀 Deploy Docs
     </span>
   </a>
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#7-run-experiments" class="md-nav__link">
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#utilities" class="md-nav__link">
     <span class="md-ellipsis">
-      7. Run Experiments
+      📜 Utilities
     </span>
   </a>
   
-</li>
+    <nav class="md-nav" aria-label="📜 Utilities">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#8-start-api" class="md-nav__link">
+  <a href="#display-help" class="md-nav__link">
     <span class="md-ellipsis">
-      8. Start Api
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#9-run-app" class="md-nav__link">
-    <span class="md-ellipsis">
-      9. Run App
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#10-display-help" class="md-nav__link">
-    <span class="md-ellipsis">
-      10. Display Help
+      🆘 Display Help
     </span>
   </a>
   
@@ -564,100 +672,208 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#available-commands" class="md-nav__link">
+  <a href="#dependency-management" class="md-nav__link">
     <span class="md-ellipsis">
-      Available Commands
+      📦 Dependency Management
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Available Commands">
+    <nav class="md-nav" aria-label="📦 Dependency Management">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-install-python-dependencies" class="md-nav__link">
+  <a href="#install-python-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Install Python Dependencies
+      ✅ Install Python Dependencies
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-delete-compiled-python-files" class="md-nav__link">
+  <a href="#delete-compiled-python-files" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Delete Compiled Python Files
+      🧹 Delete Compiled Python Files
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-quality-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧼 Code Quality Tools
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧼 Code Quality Tools">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lint-the-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔍 Lint the Code
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-lint-the-code" class="md-nav__link">
+  <a href="#format-the-code" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Lint the Code
+      🎨 Format the Code
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      📂 Data Workflow
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📂 Data Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prepare-interim-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 Prepare Interim Data
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-format-the-code" class="md-nav__link">
+  <a href="#create-dataset" class="md-nav__link">
     <span class="md-ellipsis">
-      4. Format the Code
+      📊 Create Dataset
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#training-experiments" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧠 Training &amp; Experiments
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧠 Training &amp; Experiments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-experiments" class="md-nav__link">
+    <span class="md-ellipsis">
+      🚀 Run Experiments
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-app" class="md-nav__link">
+    <span class="md-ellipsis">
+      🌐 API &amp; App
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🌐 API &amp; App">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#start-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔌 Start API
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#5-prepare-interim-data" class="md-nav__link">
+  <a href="#run-app" class="md-nav__link">
     <span class="md-ellipsis">
-      5. Prepare Interim Data
+      🖼️ Run App
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Documentation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📚 Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#serve-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧪 Serve Docs
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#6-create-dataset" class="md-nav__link">
+  <a href="#deploy-docs" class="md-nav__link">
     <span class="md-ellipsis">
-      6. Create Dataset
+      🚀 Deploy Docs
     </span>
   </a>
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#7-run-experiments" class="md-nav__link">
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#utilities" class="md-nav__link">
     <span class="md-ellipsis">
-      7. Run Experiments
+      📜 Utilities
     </span>
   </a>
   
-</li>
+    <nav class="md-nav" aria-label="📜 Utilities">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#8-start-api" class="md-nav__link">
+  <a href="#display-help" class="md-nav__link">
     <span class="md-ellipsis">
-      8. Start Api
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#9-run-app" class="md-nav__link">
-    <span class="md-ellipsis">
-      9. Run App
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#10-display-help" class="md-nav__link">
-    <span class="md-ellipsis">
-      10. Display Help
+      🆘 Display Help
     </span>
   </a>
   
@@ -684,44 +900,76 @@
 
 
 
-<h1 id="commands">Commands</h1>
-<p>This document provides an overview of the available <code>make</code> commands for the project. These commands simplify common tasks such as installing dependencies, preparing data, and managing the codebase.</p>
-<h2 id="available-commands">Available Commands</h2>
-<h3 id="1-install-python-dependencies">1. Install Python Dependencies</h3>
-<p>Installs all required Python dependencies for the project.</p>
+<h1 id="makefile-commands">🛠️ Makefile Commands</h1>
+<p>This document provides a complete overview of available <code>make</code> commands in the project. These commands streamline key development and deployment tasks, from data preparation and training to running the app and building documentation.</p>
+<hr />
+<h2 id="dependency-management">📦 Dependency Management</h2>
+<h3 id="install-python-dependencies">✅ Install Python Dependencies</h3>
+<p>Installs all required Python packages defined in <code>requirements.txt</code>.</p>
 <pre><code class="language-bash">make requirements
 </code></pre>
-<h3 id="2-delete-compiled-python-files">2. Delete Compiled Python Files</h3>
-<p>Removes all compiled Python files (<em>.pyc, </em>.pyo) and <code>__pycache__</code> directories.</p>
+<h3 id="delete-compiled-python-files">🧹 Delete Compiled Python Files</h3>
+<p>Removes all compiled Python files (<code>*.pyc</code>, <code>*.pyo</code>) and <code>__pycache__</code> directories.</p>
 <pre><code class="language-bash">make clean
 </code></pre>
-<h3 id="3-lint-the-code">3. Lint the Code</h3>
-<p>Checks the code for style issues using <code>flake8</code>, <code>isort</code>, and <code>black</code>. Use this command to ensure the code adheres to the project's style guidelines.</p>
+<hr />
+<h2 id="code-quality-tools">🧼 Code Quality Tools</h2>
+<h3 id="lint-the-code">🔍 Lint the Code</h3>
+<p>Runs <code>flake8</code>, <code>isort</code>, and <code>black</code> in check mode to validate code style.</p>
 <pre><code class="language-bash">make lint
 </code></pre>
-<h3 id="4-format-the-code">4. Format the Code</h3>
-<p>Formats the source code using <code>black</code> according to the configuration in <code>pyproject.toml</code>.</p>
+<h3 id="format-the-code">🎨 Format the Code</h3>
+<p>Applies <code>black</code> formatting to the codebase.</p>
 <pre><code class="language-bash">make format
 </code></pre>
-<h3 id="5-prepare-interim-data">5. Prepare Interim Data</h3>
-<p>Processes the raw XLS data and prepares interim data for further processing.</p>
+<hr />
+<h2 id="data-workflow">📂 Data Workflow</h2>
+<h3 id="prepare-interim-data">🧪 Prepare Interim Data</h3>
+<p>Extracts and cleans metadata from XLS into intermediate format.</p>
 <pre><code class="language-bash">make prepare_interim_data
 </code></pre>
-<h3 id="6-create-dataset">6. Create Dataset</h3>
-<p>Generates the final dataset using the processed interim data.</p>
+<h3 id="create-dataset">📊 Create Dataset</h3>
+<p>Finalizes dataset by cropping and normalizing vertebrae volumes.</p>
 <pre><code class="language-bash">make create_dataset
 </code></pre>
-<h3 id="7-run-experiments">7. Run Experiments</h3>
-<pre><code class="language-bash">make create_dataset
+<hr />
+<h2 id="training-experiments">🧠 Training &amp; Experiments</h2>
+<h3 id="run-experiments">🚀 Run Experiments</h3>
+<p>Launches model training and logs all results to Weights &amp; Biases.</p>
+<pre><code class="language-bash">make run_experiments
 </code></pre>
-<h3 id="8-start-api">8. Start Api</h3>
-<pre><code class="language-bash">make create_dataset
+<blockquote>
+<p>⚠️ Training can be computationally expensive and time-consuming.<br />
+Progress is automatically tracked via Weights &amp; Biases.<br />
+📊 Dashboard: <code>[ W&amp;B link here]</code></p>
+</blockquote>
+<hr />
+<h2 id="api-app">🌐 API &amp; App</h2>
+<h3 id="start-api">🔌 Start API</h3>
+<p>Launches the FastAPI server to expose model predictions.</p>
+<pre><code class="language-bash">make start_api
 </code></pre>
-<h3 id="9-run-app">9. Run App</h3>
-<pre><code class="language-bash">make create_dataset
+<blockquote>
+<p>ℹ️ <strong>Configuration</strong>: Set the model path and inference device in <code>src/config.py</code> based on your environment (<code>cuda</code>, <code>cpu</code>, <code>mps</code>).</p>
+</blockquote>
+<h3 id="run-app">🖼️ Run App</h3>
+<p>Runs the local Streamlit app for prediction visualization.</p>
+<pre><code class="language-bash">make run_app
 </code></pre>
-<h3 id="10-display-help">10. Display Help</h3>
-<p>Displays a list of all available <code>make</code> commands with their descriptions.</p>
+<hr />
+<h2 id="documentation">📚 Documentation</h2>
+<h3 id="serve-docs">🧪 Serve Docs</h3>
+<p>Serves documentation locally for development preview.</p>
+<pre><code class="language-bash">make serve_docs
+</code></pre>
+<h3 id="deploy-docs">🚀 Deploy Docs</h3>
+<p>Publishes documentation to the configured hosting provider (e.g. GitHub Pages).</p>
+<pre><code class="language-bash">make deploy_docs
+</code></pre>
+<hr />
+<h2 id="utilities">📜 Utilities</h2>
+<h3 id="display-help">🆘 Display Help</h3>
+<p>Lists all available <code>make</code> commands and short descriptions.</p>
 <pre><code class="language-bash">make help
 </code></pre>
 
