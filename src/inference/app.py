@@ -66,12 +66,14 @@ def process_predictions(data: Dict, k: int) -> pd.DataFrame:
             for i in range(k):
                 if i < len(preds):
                     cls, prob = preds[i]
-                    row[f"Top-{i+1} Class"] = cls
-                    row[f"Top-{i+1} Prob"] = float(prob)
+                    cls = "Zdrowy" if cls == "H" else cls
+
+                    row[f"Klasa-{i+1}"] = cls
+                    row[f"Prawdopodobieństwo-{i+1}"] = float(prob)
         else:
             for i in range(k):
-                row[f"Top-{i+1} Class"] = ""
-                row[f"Top-{i+1} Prob"] = None
+                row[f"Klasa-{i+1}"] = ""
+                row[f"Prawdopodobieństwo-{i+1}"] = None
         rows.append(row)
     return pd.DataFrame(rows)
 
@@ -108,14 +110,14 @@ def style_predictions(df: pd.DataFrame):
     """
 
     def color_row(row):
-        cls = row.get("Top-1 Class")
-        prob = row.get("Top-1 Prob")
+        cls = row.get("Klasa-1")
+        prob = row.get("Prawdopodobieństwo-1")
         if pd.isna(prob) or cls is None:
             return [""] * len(row)
         prob = float(prob)
-        if cls == "H":
-            return [f"background-color: rgba(0,255,0,{0.3 * prob}); color: black"] * len(row)
-        return [f"background-color: rgba(255,0,0,{0.3 * prob}); color: white"] * len(row)
+        if cls == "Zdrowy":
+            return [f"background-color: rgba(0,255,0,{0.2 * prob}); color: black"] * len(row)
+        return [f"background-color: rgba(255,0,0,{0.2 * prob}); color: white"] * len(row)
 
     return df.style.apply(color_row, axis=1)
 
@@ -228,8 +230,10 @@ def main():
     st.set_page_config(layout="wide")
 
     dicom_dirs = get_dicom_dirs()
-    selected_patient = st.sidebar.selectbox("Pacjent (folder)", dicom_dirs)
-    k = st.sidebar.slider("Liczba top-k klas", min_value=1, max_value=5, value=2)
+    search_query = st.sidebar.text_input("Wyszukaj pacjenta (folder)", "")
+    filtered_dirs = [d for d in dicom_dirs if search_query.lower() in d.lower()]
+    selected_patient = st.sidebar.selectbox("Pacjent (folder)", filtered_dirs)
+    k = st.sidebar.slider("Liczba najbardziej prawdopodobnych predykcji", min_value=1, max_value=5, value=2)
 
     data = fetch_predictions(selected_patient, k)
     df = process_predictions(data, k)

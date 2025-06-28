@@ -74,7 +74,7 @@ class VertebraeClassifier(nn.Module, metaclass=abc.ABCMeta):
         results = []
         for sample_probs, sample_idxs in zip(top_probs, top_idxs):
             sample_result = [
-                (class_names[idx], float(prob)) for idx, prob in zip(sample_idxs, sample_probs)
+                (class_names[idx], round(float(prob), 4)) for idx, prob in zip(sample_idxs, sample_probs)
             ]
             results.append(sample_result)
 

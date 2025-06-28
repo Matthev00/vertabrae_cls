@@ -7,6 +7,8 @@ from pydantic import BaseModel
 
 from src.config import CLS_MODEL_DIR, DICOM_DATA_DIR
 from src.inference.predictor import InjuryDetector
+from random import sample
+
 
 app = FastAPI(title="Vertebrae Injury Classification API")
 
@@ -68,43 +70,28 @@ def predict_fake_from_patient_id(
     patient_id: str = Query(..., description="Subdirectory under DICOM_DATA_DIR"),
     k: int = Query(2, description="Number of top-k predictions to return per vertebra"),
 ):
-    from random import choice, sample, uniform
+    from random import choice, randint, uniform
 
     vertebrae = [
-        "C1",
-        "C2",
-        "C3",
-        "C4",
-        "C5",
-        "C6",
-        "C7",
-        "Th1",
-        "Th2",
-        "Th3",
-        "Th4",
-        "Th5",
-        "Th6",
-        "Th7",
-        "Th8",
-        "Th9",
-        "Th10",
-        "Th11",
-        "Th12",
-        "L1",
-        "L2",
-        "L3",
-        "L4",
-        "L5",
+        "C1", "C2", "C3", "C4", "C5", "C6", "C7",
+        "Th1", "Th2", "Th3", "Th4", "Th5", "Th6", "Th7", "Th8", "Th9", "Th10", "Th11", "Th12",
+        "L1", "L2", "L3", "L4", "L5",
     ]
-    class_names = ["A0", "A1", "A2", "A3", "A4", "B1", "B2", "B3", "C", "H"]
+    class_names = ["B1", "B2", "B3", "H"]
 
-    unfound = set(sample(vertebrae, 3))
+    start_idx = randint(7, len(vertebrae) - 4)
+    unfound = set(sample(vertebrae, k=randint(0, 2)))
     found = [v for v in vertebrae if v not in unfound]
+    injured_vertebrae = vertebrae[start_idx:start_idx + 3]
 
     predictions = []
     for v in found:
-        topk = sample(class_names, k)
-        result = [(cls, round(uniform(0.15, 0.45), 6)) for cls in topk]
+        if v in injured_vertebrae:
+            topk = [choice(["B1", "B2", "B3"])] + ["H"]
+            result = [(cls, round(uniform(0.6, 0.9), 6) if cls != "H" else round(uniform(0.1, 0.3), 6)) for cls in topk]
+        else:
+            topk = ["H"] + [choice(["B1", "B2", "B3"])]
+            result = [(cls, round(uniform(0.7, 0.9), 6) if cls == "H" else round(uniform(0.1, 0.3), 6)) for cls in topk]
         predictions.append({"vertebra": v, "topk": result})
 
     return PredictionResponse(
