@@ -78,6 +78,10 @@ class DatasetCreator:
                             "II": dir_name,
                         }
                     )
+                else :
+                    logger.warning(
+                        f"Target tensor for {vertebra} in {dir_name} is None. Skipping."
+                    )
             except Exception as e:
                 logger.error(f"Error ijuried processing {vertebra} in {dir_name}: {e}")
 
@@ -359,8 +363,4 @@ def create_dataset():
     from src.config import RAPORT_FILE_PATH, TARGET_TENSOR_SIZE
 
     x = DatasetCreator(RAPORT_FILE_PATH)
-    x.create_dataset(target_size=TARGET_TENSOR_SIZE, num_healthy=1)
-
-
-if __name__ == "__main__":
-    create_dataset()
+    x.create_dataset(target_size=TARGET_TENSOR_SIZE, num_healthy=2)

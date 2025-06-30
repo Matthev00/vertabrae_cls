@@ -107,7 +107,3 @@ def extract_xls():
 
     extractor = XLSExtractor(RAW_DATA_DIR / "raport1.xlsx")
     extractor.extract_and_save(INTERIM_DATA_DIR / "extracted_data.csv")
-
-
-if __name__ == "__main__":
-    extract_xls()
