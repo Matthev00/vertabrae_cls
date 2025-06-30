@@ -339,7 +339,7 @@ class DatasetCreator:
             reader = csv.reader(f)
             next(reader)
             for row in tqdm(reader):
-                _, raw_injuries, dir_id = row
+                _, raw_injuries, dir_id, *extra = row
                 logger.info(f"Processing dir id:{dir_id}.")
                 try:
                     dir_name = self.extract_dir_name(dir_id)
