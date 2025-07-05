@@ -45,7 +45,6 @@ def default_train_transforms() -> Compose:
                 sigma_range=(2, 4),
                 magnitude_range=(2, 8),
                 prob=0.5,
-                spacing=(10, 10, 10),
                 rotate_range=(0, 0, 0),
                 scale_range=(0, 0, 0),
                 translate_range=(0, 0, 0),
@@ -143,11 +142,9 @@ def get_dataloders(
         tuple[DataLoader, DataLoader]: Training and validation DataLoaders.
     """
     df = read_labels_file(labels_file_path)
-    # train_df, val_df = train_test_split(
-    #     df, train_size=train_split, stratify=df["injury_type"], random_state=42
-    # )
-    # Podmienić
-    train_df, val_df = train_test_split(df, train_size=train_split, random_state=42)
+    train_df, val_df = train_test_split(
+        df, train_size=train_split, stratify=df["injury_type"], random_state=42
+    )
 
     if train_transforms is None:
         if balance_train:

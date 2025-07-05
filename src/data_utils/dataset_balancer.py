@@ -17,7 +17,6 @@ class DatasetBalancer:
                 sigma_range=(2, 4),
                 magnitude_range=(2, 8),
                 prob=1,
-                spacing=(10, 10, 10),
                 rotate_range=(0, 0, 0),
                 scale_range=(0, 0, 0),
                 translate_range=(0, 0, 0),
@@ -44,7 +43,6 @@ class DatasetBalancer:
                         sigma_range=(2, 4),
                         magnitude_range=(2, 8),
                         prob=0.5,
-                        spacing=(10, 10, 10),
                         rotate_range=(0, 0, 0),
                         scale_range=(0, 0, 0),
                         translate_range=(0, 0, 0),
@@ -95,10 +93,12 @@ class DatasetBalancer:
         """
 
         augmented_tensor_dir = self.tensor_dir / "augmented"
+        augmented_tensor_dir.mkdir(parents=True, exist_ok=True)
+        balanced_rows = [df]
+        df = df[df["injury_type"] != "H"]
+
         class_counts = df["injury_type"].value_counts()
         max_count = class_counts.max()
-
-        balanced_rows = [df]
 
         class_number = 0
 
