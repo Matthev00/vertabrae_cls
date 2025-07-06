@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import wandb
 from src.training.train import train
 
@@ -31,5 +33,14 @@ def sweep_train():
 
 
 if __name__ == "__main__":
-    sweep_id = wandb.sweep(sweep_config, project="Vertebrae Classifier")
-    wandb.agent(sweep_id, function=sweep_train, count=1)
+    sweep_file = Path("sweep_id.txt")
+
+    if sweep_file.exists():
+        sweep_id = sweep_file.read_text().strip()
+        print(f"Resuming existing sweep: {sweep_id}")
+    else:
+        sweep_id = wandb.sweep(sweep_config, project="Vertebrae Classifier")
+        sweep_file.write_text(sweep_id)
+        print(f"Created new sweep: {sweep_id}")
+
+    wandb.agent(sweep_id, function=sweep_train)
