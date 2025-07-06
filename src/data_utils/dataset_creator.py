@@ -274,7 +274,7 @@ class DatasetCreator:
 
                 TENSOR_DIR.mkdir(parents=True, exist_ok=True)
 
-                torch.save(tensor, tensor_file_path)
+                torch.save(tensor.detach().copy(), tensor_file_path)
 
                 writer.writerow(
                     {
