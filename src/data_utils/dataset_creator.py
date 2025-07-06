@@ -78,7 +78,7 @@ class DatasetCreator:
                             "II": dir_name,
                         }
                     )
-                else :
+                else:
                     logger.warning(
                         f"Target tensor for {vertebra} in {dir_name} is None. Skipping."
                     )

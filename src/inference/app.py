@@ -233,7 +233,9 @@ def main():
     search_query = st.sidebar.text_input("Wyszukaj pacjenta (folder)", "")
     filtered_dirs = [d for d in dicom_dirs if search_query.lower() in d.lower()]
     selected_patient = st.sidebar.selectbox("Pacjent (folder)", filtered_dirs)
-    k = st.sidebar.slider("Liczba najbardziej prawdopodobnych predykcji", min_value=1, max_value=5, value=2)
+    k = st.sidebar.slider(
+        "Liczba najbardziej prawdopodobnych predykcji", min_value=1, max_value=5, value=2
+    )
 
     data = fetch_predictions(selected_patient, k)
     df = process_predictions(data, k)
