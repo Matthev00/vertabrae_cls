@@ -59,6 +59,7 @@ def train(config: dict = None):
         batch_size=config["batch_size"],
         num_workers=NUM_WORKERS,
         balance_train=config.get("balance_train", False),
+        train_split=0.7,
     )
     with open(CLASS_NAMES_FILE_PATH) as f:
         class_names = [line.strip() for line in f if line.strip()]
