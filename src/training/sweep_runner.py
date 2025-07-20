@@ -7,7 +7,7 @@ sweep_config = {
     "method": "bayes",
     "metric": {"name": "val_balanced_acc", "goal": "maximize"},
     "parameters": {
-        "model_type": {"values": ["med3d", "base", "monai"]},
+        "model_type": {"values": ["med3d", "monai"]},
         "model_depth": {"values": [10, 18, 34, 50, 101, 152, 200]},
         "freeze_backbone": {"values": [True, False]},
         "batch_size": {"values": [8, 16, 32, 64, 128]},

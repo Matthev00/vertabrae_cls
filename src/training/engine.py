@@ -93,7 +93,7 @@ class Trainer:
             k: copy.deepcopy(v).to(device) for k, v in self.train_metrics.items()
         }
 
-        self.best_val_loss = float("inf")
+        self.best_val_recall = 0.0
         self.best_model_path = self.save_dir / f"{run_name}_best.pt"
         self._val_preds: list[int] = []
         self._val_targets: list[int] = []
@@ -134,8 +134,9 @@ class Trainer:
                     }
                 )
 
-            if val_loss < self.best_val_loss:
-                self.best_val_loss = val_loss
+            val_recall = val_metrics.get("val_recall", 0.0)
+            if val_recall > self.best_val_recall:
+                self.best_val_recall = val_recall
                 torch.save(self.model.state_dict(), self.best_model_path)
                 self._val_preds = val_preds
                 self._val_targets = val_targets

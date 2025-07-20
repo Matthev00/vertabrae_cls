@@ -57,7 +57,7 @@ def train(config: dict = None):
         train_transforms=None,
         val_transforms=None,
         batch_size=config["batch_size"],
-        num_workers=NUM_WORKERS,
+        num_workers=0,
         balance_train=config.get("balance_train", False),
         train_split=0.7,
     )
