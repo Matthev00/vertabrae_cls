@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import wandb
+
 from src.training.train import train
 
 sweep_config = {
@@ -23,6 +24,7 @@ sweep_config = {
         "balance_train": {"values": [True, False]},
         "early_stopping_patience": {"value": 10},
         "early_stopping": {"value": 10},
+        "ProportionalBalancer": {"value": True},
     },
 }
 

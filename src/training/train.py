@@ -3,12 +3,12 @@ import os
 from typing import Optional
 
 import torch
+import wandb
 import yaml
 from torch import nn
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau, StepLR
 
-import wandb
 from src.config import CLASS_NAMES_FILE_PATH, LABELS_FILE_PATH, MODELS_DIR, TENSOR_DIR
 from src.data_utils.dataloader import get_dataloders
 from src.modeling.model_factory import create_model
