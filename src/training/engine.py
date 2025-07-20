@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 import torch
+import wandb
 from torch import nn
 from torchmetrics.classification import (
     MulticlassAccuracy,
@@ -15,7 +16,6 @@ from torchmetrics.classification import (
     MulticlassStatScores,
 )
 
-import wandb
 from src.config import MODELS_DIR
 
 

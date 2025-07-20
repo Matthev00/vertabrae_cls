@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 from torchvision.transforms import Compose
 
-from src.data_utils.dataset_balancer import DatasetBalancer
+from src.data_utils.dataset_balancer import ProportionalDatasetBalancer
 from src.data_utils.vertebrae_dataset import VertebraeDataset
 
 
@@ -105,8 +105,8 @@ def balance_dataframe(
     if augmented_labels_path.exists():
         print("[INFO] Augmented dataset found. Loading from disk.")
         return pd.read_csv(augmented_labels_path)
-    balancer = DatasetBalancer(tensor_dir=tensor_dir)
-    balanced_df = balancer.balance_dataframe_with_augmentation(df)
+    balancer = ProportionalDatasetBalancer(tensor_dir=tensor_dir)
+    balanced_df = balancer.balance_dataframe_with_augmentation(df, k=3)
     balanced_df.to_csv(augmented_labels_path, index=False)
     return balanced_df
 
