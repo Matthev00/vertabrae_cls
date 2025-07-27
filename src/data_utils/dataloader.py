@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, Literal
+from typing import Literal, Optional
 
 import pandas as pd
 from monai.transforms import (
@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 from torchvision.transforms import Compose
 
-from src.data_utils.dataset_balancer import ProportionalDatasetBalancer, DatasetBalancer
+from src.data_utils.dataset_balancer import DatasetBalancer, ProportionalDatasetBalancer
 from src.data_utils.vertebrae_dataset import VertebraeDataset
 
 
@@ -84,9 +84,7 @@ def default_val_transforms() -> Compose:
 
 
 def balance_dataframe(
-    df: pd.DataFrame,
-    tensor_dir: Path,
-    balancer_type: Literal["base", "proportional"]
+    df: pd.DataFrame, tensor_dir: Path, balancer_type: Literal["base", "proportional"]
 ) -> pd.DataFrame:
     """
     Balances the dataset by augmenting samples of underrepresented classes.
@@ -125,7 +123,7 @@ def get_dataloders(
     train_split: float = 0.8,
     balance_train: bool = False,
     binary_class: bool = False,
-    balancer_type: Literal["base", "proportional"] = "base"
+    balancer_type: Literal["base", "proportional"] = "base",
 ) -> tuple[DataLoader, DataLoader]:
     """
     Creates DataLoaders for training and validation datasets.

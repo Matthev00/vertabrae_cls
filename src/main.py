@@ -24,7 +24,7 @@ def main():
         num_workers=num_workers,
         train_split=0.7,
         binary_class=True,
-        balancer_type="proportional"
+        balancer_type="proportional",
     )
     class_counts = Counter()
     for _, y in val_dataloader:
