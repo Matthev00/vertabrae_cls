@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Literal
 
 import pandas as pd
 from monai.transforms import (
@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 from torchvision.transforms import Compose
 
-from src.data_utils.dataset_balancer import ProportionalDatasetBalancer
+from src.data_utils.dataset_balancer import ProportionalDatasetBalancer, DatasetBalancer
 from src.data_utils.vertebrae_dataset import VertebraeDataset
 
 
@@ -86,6 +86,7 @@ def default_val_transforms() -> Compose:
 def balance_dataframe(
     df: pd.DataFrame,
     tensor_dir: Path,
+    balancer_type: Literal["base", "proportional"]
 ) -> pd.DataFrame:
     """
     Balances the dataset by augmenting samples of underrepresented classes.
@@ -94,6 +95,7 @@ def balance_dataframe(
     Args:
         df (pd.DataFrame): DataFrame containing the dataset labels.
         tensor_dir (Path): Directory where tensor files are stored.
+        ....
 
     Returns:
         pd.DataFrame: DataFrame with balanced dataset.
@@ -102,11 +104,12 @@ def balance_dataframe(
     augmented_tensor_dir = tensor_dir / "augmented"
     augmented_tensor_dir.mkdir(parents=True, exist_ok=True)
 
-    if augmented_labels_path.exists():
-        print("[INFO] Augmented dataset found. Loading from disk.")
-        return pd.read_csv(augmented_labels_path)
-    balancer = ProportionalDatasetBalancer(tensor_dir=tensor_dir)
-    balanced_df = balancer.balance_dataframe_with_augmentation(df, k=3)
+    if balancer_type == "base":
+        balancer = DatasetBalancer(tensor_dir=tensor_dir)
+        balanced_df = balancer.balance_dataframe_with_augmentation(df)
+    elif balancer_type == "proportional":
+        balancer = ProportionalDatasetBalancer(tensor_dir=tensor_dir)
+        balanced_df = balancer.balance_dataframe_with_augmentation(df, k=3)
     balanced_df.to_csv(augmented_labels_path, index=False)
     return balanced_df
 
@@ -122,6 +125,7 @@ def get_dataloders(
     train_split: float = 0.8,
     balance_train: bool = False,
     binary_class: bool = False,
+    balancer_type: Literal["base", "proportional"] = "base"
 ) -> tuple[DataLoader, DataLoader]:
     """
     Creates DataLoaders for training and validation datasets.
@@ -137,6 +141,7 @@ def get_dataloders(
         train_split (float): Proportion of data to use for training.
         balance_train (bool): Whether to balance the training dataset.
         binary_class (bool): Wether to use only Helathy Injuried classes or original
+        ....
 
     Returns:
         tuple[DataLoader, DataLoader]: Training and validation DataLoaders.
@@ -159,6 +164,7 @@ def get_dataloders(
         train_df = balance_dataframe(
             df=train_df,
             tensor_dir=tensor_dir,
+            balancer_type=balancer_type,
         )
 
     train_dataset = VertebraeDataset(

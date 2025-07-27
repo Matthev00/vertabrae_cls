@@ -4,8 +4,6 @@ from pathlib import Path
 import torch
 from torch import nn
 
-from src.config import CLASS_NAMES_FILE_PATH
-
 
 class VertebraeClassifier(nn.Module, metaclass=abc.ABCMeta):
     def __init__(self, num_classes: int) -> None:
