@@ -95,7 +95,7 @@ class DatasetBalancer:
         augmented_tensor_dir = self.tensor_dir / "augmented"
         augmented_tensor_dir.mkdir(parents=True, exist_ok=True)
         balanced_rows = [df]
-        df = df[df["injury_type"] != "H"]
+        # df = df[df["injury_type"] != "H"]
 
         class_counts = df["injury_type"].value_counts()
         max_count = class_counts.max()
@@ -149,7 +149,7 @@ class ProportionalDatasetBalancer(DatasetBalancer):
         augmented_tensor_dir = self.tensor_dir / "augmented"
         augmented_tensor_dir.mkdir(parents=True, exist_ok=True)
         balanced_rows = [df]
-        df = df[df["injury_type"] != "H"]
+        # df = df[df["injury_type"] != "H"]
         class_counts = df["injury_type"].value_counts()
 
         class_number = 0

@@ -4,7 +4,7 @@ from typing import Literal
 import torch
 
 from src.config import (
-    CLASS_NAMES_FILE_PATH,
+    CLASS_NAMES_FILE_PATH_BINARY,
     DEVICE,
     DICOM_DATA_DIR,
     IS_FULL_RESOLUTION,
@@ -99,7 +99,7 @@ class InjuryDetector:
             return [], unfound_vertebrae
 
         batch = torch.stack(vertebra_tensors).to(DEVICE)
-        topk_results = self.classifier.topk_predictions(batch, CLASS_NAMES_FILE_PATH, k)
+        topk_results = self.classifier.topk_predictions(batch, CLASS_NAMES_FILE_PATH_BINARY, k)
 
         patient_predictions = [
             {"vertebra": vertebra, "topk": topk}

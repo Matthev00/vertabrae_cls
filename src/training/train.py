@@ -9,7 +9,7 @@ from torch import nn
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau, StepLR
 
-from src.config import CLASS_NAMES_FILE_PATH, LABELS_FILE_PATH, MODELS_DIR, TENSOR_DIR
+from src.config import CLASS_NAMES_FILE_PATH_BINARY, LABELS_FILE_PATH, MODELS_DIR, TENSOR_DIR
 from src.data_utils.dataloader import get_dataloders
 from src.modeling.model_factory import create_model
 from src.training.engine import Trainer
@@ -60,8 +60,10 @@ def train(config: dict = None):
         num_workers=0,
         balance_train=config.get("balance_train", False),
         train_split=0.7,
+        binary_class=True,
+        balancer_type=config.get("balancer_type", "base"),
     )
-    with open(CLASS_NAMES_FILE_PATH) as f:
+    with open(CLASS_NAMES_FILE_PATH_BINARY) as f:
         class_names = [line.strip() for line in f if line.strip()]
 
     model = create_model(

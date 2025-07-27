@@ -23,6 +23,8 @@ def main():
         balance_train=True,
         num_workers=num_workers,
         train_split=0.7,
+        binary_class=True,
+        balancer_type="proportional"
     )
     class_counts = Counter()
     for _, y in val_dataloader:
@@ -34,6 +36,13 @@ def main():
 
     print(len(train_dataloader.dataset), "examples in training dataset")
     print(len(val_dataloader.dataset), "examples in validation dataset")
+
+    class_counts = Counter()
+    for _, y in train_dataloader:
+        class_counts.update(y.tolist())
+    print("Class distribution in training dataset:")
+    for cls, count in class_counts.items():
+        print(f"Class {cls}: {count} examples")
 
 
 if __name__ == "__main__":
