@@ -21,7 +21,7 @@ sweep_config = {
         "weight_decay": {"values": [0.0, 1e-5, 1e-3, 5e-2]},
         "balance_train": {"values": [True, False]},
         "early_stopping_patience": {"value": 20},
-        "balancer_type": {"values": ["proportional, base"]},
+        "balancer_type": {"values": ["proportional", "base"]},
     },
 }
 
