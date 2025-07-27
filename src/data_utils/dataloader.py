@@ -95,7 +95,7 @@ def balance_dataframe(
     Args:
         df (pd.DataFrame): DataFrame containing the dataset labels.
         tensor_dir (Path): Directory where tensor files are stored.
-        ....
+        balancer_type Literal["base", "proportional"]: Type of data balncer.
 
     Returns:
         pd.DataFrame: DataFrame with balanced dataset.
@@ -141,7 +141,7 @@ def get_dataloders(
         train_split (float): Proportion of data to use for training.
         balance_train (bool): Whether to balance the training dataset.
         binary_class (bool): Wether to use only Helathy Injuried classes or original
-        ....
+        balancer_type Literal["base", "proportional"]: Type of data balncer.
 
     Returns:
         tuple[DataLoader, DataLoader]: Training and validation DataLoaders.
