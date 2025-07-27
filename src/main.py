@@ -1,4 +1,5 @@
 import os
+from collections import Counter
 
 import torch
 
@@ -15,17 +16,24 @@ def main():
     config = {"model_depth": 18, "freeze_backbone": False}
     model = create_model(model_type="monai", num_classes=10, device=device, **config)
 
-    train_dataloader, _ = get_dataloders(
+    train_dataloader, val_dataloader = get_dataloders(
         labels_file_path=LABELS_FILE_PATH,
         tensor_dir=TENSOR_DIR,
         batch_size=4,
         balance_train=True,
         num_workers=num_workers,
+        train_split=0.7,
     )
-    X, y = next(iter(train_dataloader))
-    X = X.to(device)
-    y_pred = model.predict(X)
-    print(f"Pred: {y_pred}, label: {y}")
+    class_counts = Counter()
+    for _, y in val_dataloader:
+        class_counts.update(y.tolist())
+
+    print("Class distribution in validation dataset:")
+    for cls, count in class_counts.items():
+        print(f"Class {cls}: {count} examples")
+
+    print(len(train_dataloader.dataset), "examples in training dataset")
+    print(len(val_dataloader.dataset), "examples in validation dataset")
 
 
 if __name__ == "__main__":
