@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Optional
 
 import torch
-import wandb
 from torch import nn
 from torchmetrics.classification import (
     MulticlassAccuracy,
@@ -16,6 +15,7 @@ from torchmetrics.classification import (
     MulticlassStatScores,
 )
 
+import wandb
 from src.config import MODELS_DIR
 
 
@@ -185,7 +185,6 @@ class Trainer:
 
         for X, y in self.train_loader:
             X, y = X.to(self.device), y.to(self.device)
-
             self.optimizer.zero_grad()
             outputs = self.model(X)
             loss = self.criterion(outputs, y)

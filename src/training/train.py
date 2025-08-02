@@ -3,17 +3,17 @@ import os
 from typing import Optional
 
 import torch
-import wandb
 import yaml
 from torch import nn
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau, StepLR
 
+import wandb
 from src.config import CLASS_NAMES_FILE_PATH, LABELS_FILE_PATH, MODELS_DIR, TENSOR_DIR
 from src.data_utils.dataloader import get_dataloders
 from src.modeling.model_factory import create_model
 from src.training.engine import Trainer
-from src.utils import set_seed
+from src.utils import MAIN_CLASSES, set_seed
 
 
 def build_scheduler(
@@ -47,7 +47,7 @@ def train(config: dict = None):
         raise ValueError("Configuration dictionary must be provided when using wandb sweep.")
     set_seed(42)
     NUM_WORKERS = os.cpu_count()
-    DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+    DEVICE = "cuda:1" if torch.cuda.is_available() else "cpu"
     run = wandb.init(config=config, project="Vertebrae Classifier")
     config = wandb.config
 
@@ -60,9 +60,14 @@ def train(config: dict = None):
         num_workers=0,
         balance_train=config.get("balance_train", False),
         train_split=0.7,
+        balancer_type=config.get("balancer_type", "base"),
+        main_classes=config.get("main_classes", False),
     )
-    with open(CLASS_NAMES_FILE_PATH) as f:
-        class_names = [line.strip() for line in f if line.strip()]
+    if config.get("main_classes", False):
+        class_names = MAIN_CLASSES
+    else:
+        with open(CLASS_NAMES_FILE_PATH) as f:
+            class_names = [line.strip() for line in f if line.strip()]
 
     model = create_model(
         model_type=config["model_type"],
@@ -86,7 +91,7 @@ def train(config: dict = None):
         device=DEVICE,
         run_name=run.name,
         scheduler=scheduler,
-        early_stopping=config["early_stopping"],
+        early_stopping=config["early_stopping_patience"]>0,
         early_stopping_patience=config["early_stopping_patience"],
         class_names=class_names,
         max_epochs=config["max_epochs"],

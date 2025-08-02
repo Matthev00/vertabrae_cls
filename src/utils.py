@@ -42,3 +42,19 @@ def set_seed(seed: int) -> None:
     torch.cuda.manual_seed_all(seed)
 
     torch.backends.cudnn.benchmark = False
+
+
+DETAILED_TO_MAIN_MAPPING = {
+    "A0": "A",
+    "A1": "A",
+    "A2": "A",
+    "A3": "A",
+    "A4": "A",
+    "B1": "B",
+    "B2": "B",
+    "B3": "B",
+    "C": "C",
+    "H": "H",
+}
+
+MAIN_CLASSES = ["A", "B", "C", "H"]

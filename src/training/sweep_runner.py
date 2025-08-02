@@ -1,14 +1,15 @@
 from pathlib import Path
 
 import wandb
-
 from src.training.train import train
 
 sweep_config = {
     "method": "bayes",
     "metric": {"name": "val_balanced_acc", "goal": "maximize"},
     "parameters": {
-        "model_type": {"values": ["monai"]},
+        "model_type": {"values": ["base", "med3d", "monai"]},
+        "model_depth": {"values": [10, 18, 34, 50, 101, 152, 200]},
+        "shortcut_type": {"values": ["A", "B"]},
         "freeze_backbone": {"values": [True, False]},
         "batch_size": {"values": [8, 16, 32, 64, 128]},
         "lr": {"min": 1e-6, "max": 1e-1},
@@ -20,9 +21,9 @@ sweep_config = {
         "max_epochs": {"value": 70},
         "weight_decay": {"values": [0.0, 1e-5, 1e-3, 5e-2]},
         "balance_train": {"values": [True, False]},
-        "early_stopping_patience": {"value": 10},
-        "early_stopping": {"value": 10},
-        "ProportionalBalancer": {"value": True},
+        "early_stopping_patience": {"value": 20},
+        "balancer_type": {"values": ["proportional", "base"]},
+        "main_classes": {"value": True},
     },
 }
 
@@ -33,14 +34,5 @@ def sweep_train():
 
 
 if __name__ == "__main__":
-    sweep_file = Path("sweep_id.txt")
-
-    if sweep_file.exists():
-        sweep_id = sweep_file.read_text().strip()
-        print(f"Resuming existing sweep: {sweep_id}")
-    else:
-        sweep_id = wandb.sweep(sweep_config, project="Vertebrae Classifier")
-        sweep_file.write_text(sweep_id)
-        print(f"Created new sweep: {sweep_id}")
-
-    wandb.agent(sweep_id, function=sweep_train, count=50)
+    sweep_id = wandb.sweep(sweep_config, project="Vertebrae Classifier - MainClasses")
+    wandb.agent(sweep_id, function=sweep_train, count=100)

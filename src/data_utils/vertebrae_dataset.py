@@ -7,6 +7,7 @@ from torch.utils.data import Dataset
 from torchvision.transforms import Compose
 
 from src.config import CLASS_NAMES_FILE_PATH
+from src.utils import DETAILED_TO_MAIN_MAPPING, MAIN_CLASSES
 
 
 class VertebraeDataset(Dataset):
@@ -14,7 +15,7 @@ class VertebraeDataset(Dataset):
         self,
         df: pd.DataFrame,
         tensor_dir: Path,
-        binary_class: bool,
+        main_classes: bool,
         transform: Optional[Compose] = None,
     ) -> None:
         """
@@ -23,14 +24,15 @@ class VertebraeDataset(Dataset):
         Args:
             df (pd.DataFrame): DataFrame containing metadata for the dataset.
             tensor_dir (Path): Directory where tensor files are stored.
-            binary_class (bool): Wether to use only Helathy Injuried classes or original
+            main_classes (bool): If True, use main classes; otherwise, use all classes.
             transform (Optional[Compose]): Optional transformations to apply to the data.
         """
         self.df = df.reset_index(drop=True)
         self.tensor_dir = tensor_dir
         self.transform = transform
+        self.main_classes = main_classes
         self.class_mapping = self._load_class_mapping(CLASS_NAMES_FILE_PATH)
-        self.binary_class = binary_class
+
 
     def __len__(self):
         return len(self.df)
@@ -45,6 +47,8 @@ class VertebraeDataset(Dataset):
         Returns:
             dict[str, int]: A dictionary mapping class names to indices.
         """
+        if self.main_classes:
+            return {cls_name: idx for idx, cls_name in enumerate(MAIN_CLASSES)}
         with open(filepath) as f:
             classes = [line.strip() for line in f if line.strip()]
         return {cls_name: idx for idx, cls_name in enumerate(classes)}
@@ -59,12 +63,14 @@ class VertebraeDataset(Dataset):
             tensor_dir = self.tensor_dir
         tensor_path = tensor_dir / f"{int(tensor_name):05d}.pt"
         tensor = torch.load(tensor_path, weights_only=False).squeeze(0)
-        label = self.class_mapping[row["injury_type"]]
+
+        injury_type = row["injury_type"]
+        if self.main_classes:
+            injury_type = DETAILED_TO_MAIN_MAPPING[injury_type]
+
+        label = self.class_mapping[injury_type]
 
         if self.transform:
             tensor = self.transform(tensor)
-
-        if self.binary_class:
-            return tensor, torch.tensor(label != 9, dtype=torch.float)
 
         return tensor, torch.tensor(label, dtype=torch.long)
