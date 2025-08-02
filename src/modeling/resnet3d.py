@@ -229,7 +229,7 @@ class ResNet(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.fc(x)
 
-        return x
+        return x.squeeze(1)
 
 
 def resnet10(**kwargs):

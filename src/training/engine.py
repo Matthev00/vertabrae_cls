@@ -194,7 +194,10 @@ class Trainer:
 
             total_loss += loss.item() * X.size(0)
 
-            preds = torch.argmax(outputs, dim=1)
+            if self.model.num_classes == 1:
+                preds = (torch.sigmoid(outputs) > 0.5).long()
+            else:
+                preds = torch.argmax(outputs, dim=1)
             all_preds.append(preds)
             all_targets.append(y)
 
@@ -235,7 +238,10 @@ class Trainer:
             outputs = self.model(X)
             loss = self.criterion(outputs, y)
 
-            preds = torch.argmax(outputs, dim=1)
+            if self.model.num_classes == 1:
+                preds = (torch.sigmoid(outputs) > 0.5).long()
+            else:
+                preds = torch.argmax(outputs, dim=1)
 
             total_loss += loss.item() * X.size(0)
             all_preds.append(preds)

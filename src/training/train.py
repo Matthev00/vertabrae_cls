@@ -73,14 +73,14 @@ def train(config: dict = None):
 
     model = create_model(
         model_type=config["model_type"],
-        num_classes=len(class_names),
+        num_classes=1,
         model_depth=config.get("model_depth", 18),
         shortcut_type=config.get("shortcut_type", "B"),
         freeze_backbone=config.get("freeze_backbone", True),
         device=DEVICE,
     )
 
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.BCEWithLogitsLoss()
     optimizer = Adam(model.parameters(), lr=config["lr"], weight_decay=config["weight_decay"])
     scheduler = build_scheduler(optimizer=optimizer, config=config)
 
@@ -93,7 +93,7 @@ def train(config: dict = None):
         device=DEVICE,
         run_name=run.name,
         scheduler=scheduler,
-        early_stopping=config["early_stopping"],
+        early_stopping=config["early_stopping_patience"] > 0,
         early_stopping_patience=config["early_stopping_patience"],
         class_names=class_names,
         max_epochs=config["max_epochs"],

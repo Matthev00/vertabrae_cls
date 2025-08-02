@@ -65,4 +65,4 @@ class SegResNetClassifier(VertebraeClassifier):
         x = self.model.pool(x)
         x = self.model.flatten(x)
         x = self.model.classifier(x)
-        return x
+        return x.squeeze(1)

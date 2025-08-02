@@ -7,10 +7,12 @@ sweep_config = {
     "method": "bayes",
     "metric": {"name": "val_recall", "goal": "maximize"},
     "parameters": {
-        "model_type": {"values": ["monai"]},
+        "model_type": {"values": ["base", "med3d"]},
+        "model_depth": {"values": [10, 18, 34, 50, 101, 152, 200]},
+        "shortcut_type": {"values": ["A", "B"]},
         "freeze_backbone": {"values": [True, False]},
-        "batch_size": {"values": [8, 16, 32, 64, 128, 256]},
-        "lr": {"min": 1e-4, "max": 1e-1},
+        "batch_size": {"values": [8, 16, 32, 64, 128]},
+        "lr": {"min": 1e-6, "max": 1e-1},
         "scheduler_type": {"values": ["StepLR", "CosineAnnealingLR", "ReduceLROnPlateau"]},
         "step_size": {"values": [5, 10]},
         "gamma": {"values": [0.1, 0.5]},
@@ -31,14 +33,5 @@ def sweep_train():
 
 
 if __name__ == "__main__":
-    sweep_file = Path("sweep_id.txt")
-
-    if sweep_file.exists():
-        sweep_id = sweep_file.read_text().strip()
-        print(f"Resuming existing sweep: {sweep_id}")
-    else:
-        sweep_id = wandb.sweep(sweep_config, project="Vertebrae Classifier - Binary")
-        sweep_file.write_text(sweep_id)
-        print(f"Created new sweep: {sweep_id}")
-
+    sweep_id = wandb.sweep(sweep_config, project="Vertebrae Classifier - Binary Resnet")
     wandb.agent(sweep_id, function=sweep_train, count=100)
