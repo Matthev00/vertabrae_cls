@@ -73,8 +73,7 @@ def train(config: dict = None):
         model_type=config["model_type"],
         num_classes=len(class_names),
         model_depth=config.get("model_depth", 18),
-        shortcut_type=config.get("shortcut_type", "B"),
-        freeze_backbone=config.get("freeze_backbone", True),
+        shoeze_backbone=config.get("freeze_backbone", True),
         device=DEVICE,
     )
 

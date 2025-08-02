@@ -17,17 +17,25 @@ from src.data_utils.dataset_balancer import ProportionalDatasetBalancer, Dataset
 from src.data_utils.vertebrae_dataset import VertebraeDataset
 
 
-def read_labels_file(labels_file_path: Path) -> pd.DataFrame:
+def read_labels_file(labels_file_path: Path, percentage: Optional[int] = None) -> pd.DataFrame:
     """
     Reads the labels file and returns a DataFrame.
 
     Args:
         labels_file_path (Path): Path to the labels file.
+        percentage (Optional[int]): If provided, limits the dataset to a percentage of the original size.
 
     Returns:
         pd.DataFrame: DataFrame containing the labels.
     """
+    if not labels_file_path.exists():
+        raise FileNotFoundError(f"Labels file not found at {labels_file_path}")
+
     df = pd.read_csv(labels_file_path)
+    if percentage is not None:
+        if percentage < 1 or percentage > 100:
+            raise ValueError("Percentage must be between 1 and 100.")
+        df = df.sample(frac=percentage / 100, random_state=42).reset_index(drop=True)
     return df
 
 
@@ -84,7 +92,7 @@ def default_val_transforms() -> Compose:
 
 
 def balance_dataframe(
-    df: pd.DataFrame, tensor_dir: Path, balancer_type: Literal["base", "proportional"]
+    df: pd.DataFrame, tensor_dir: Path, balancer_type: Literal["base", "proportional"], k: int = 3
 ) -> pd.DataFrame:
     """
     Balances the dataset by augmenting samples of underrepresented classes.
@@ -94,6 +102,7 @@ def balance_dataframe(
         df (pd.DataFrame): DataFrame containing the dataset labels.
         tensor_dir (Path): Directory where tensor files are stored.
         balancer_type Literal["base", "proportional"]: Type of data balncer.
+        k (int): Number of augmentations per sample for proportional balancing.
 
     Returns:
         pd.DataFrame: DataFrame with balanced dataset.
@@ -107,7 +116,7 @@ def balance_dataframe(
         balanced_df = balancer.balance_dataframe_with_augmentation(df)
     elif balancer_type == "proportional":
         balancer = ProportionalDatasetBalancer(tensor_dir=tensor_dir)
-        balanced_df = balancer.balance_dataframe_with_augmentation(df, k=3)
+        balanced_df = balancer.balance_dataframe_with_augmentation(df, k=k)
     balanced_df.to_csv(augmented_labels_path, index=False)
     return balanced_df
 
@@ -124,6 +133,7 @@ def get_dataloders(
     balance_train: bool = False,
     main_classes: bool = False,
     balancer_type: Literal["base", "proportional"] = "base",
+    size: Optional[int] = None,
 ) -> tuple[DataLoader, DataLoader]:
     """
     Creates DataLoaders for training and validation datasets.
@@ -140,14 +150,21 @@ def get_dataloders(
         balance_train (bool): Whether to balance the training dataset.
         main_classes (bool): If True, use only main classes for binary classification.
         balancer_type Literal["base", "proportional"]: Type of data balncer.
+        size (Optional[int]): If provided, limits the dataset size.
 
     Returns:
         tuple[DataLoader, DataLoader]: Training and validation DataLoaders.
     """
-    df = read_labels_file(labels_file_path)
-    train_df, val_df = train_test_split(
-        df, train_size=train_split, stratify=df["injury_type"], random_state=42
-    )
+    df = read_labels_file(labels_file_path, percentage=size if size<100 else None)
+    try :
+        train_df, val_df = train_test_split(
+            df, train_size=train_split, stratify=df["injury_type"], random_state=42,
+        )
+    except ValueError as e:
+        print(f"Error splitting dataset. Ensure that 'injury_type' column has enough samples for stratification. ")
+        train_df, val_df = train_test_split(
+            df, train_size=train_split, random_state=42,
+        )
 
     if train_transforms is None:
         if balance_train:
@@ -163,6 +180,7 @@ def get_dataloders(
             df=train_df,
             tensor_dir=tensor_dir,
             balancer_type=balancer_type,
+            k=size//100
         )
 
     train_dataset = VertebraeDataset(
