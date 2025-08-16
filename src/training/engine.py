@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Optional
 
 import torch
-import wandb
 from torch import nn
 from torchmetrics.classification import (
     MulticlassAccuracy,
@@ -15,7 +14,9 @@ from torchmetrics.classification import (
     MulticlassRecall,
     MulticlassStatScores,
 )
+from tqdm import tqdm
 
+import wandb
 from src.config import MODELS_DIR
 
 
@@ -112,7 +113,7 @@ class Trainer:
         - Stores predictions and labels to log confusion matrix later
         """
         epochs_no_improve = 0
-        for epoch in range(1, self.max_epochs + 1):
+        for epoch in tqdm(range(1, self.max_epochs + 1), desc="Training"):
             train_loss, train_metrics = self._train_one_epoch()
             val_loss, val_preds, val_targets, val_metrics = self._validate()
 

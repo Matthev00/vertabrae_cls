@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import wandb
-
 from src.training.train import train
 
 sweep_config = {
