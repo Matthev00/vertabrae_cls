@@ -155,8 +155,8 @@ def get_dataloders(
     Returns:
         tuple[DataLoader, DataLoader]: Training and validation DataLoaders.
     """
-    df = read_labels_file(labels_file_path, percentage=size if size<100 else None)
-    try :
+    df = read_labels_file(labels_file_path)
+    try:
         train_df, val_df = train_test_split(
             df, train_size=train_split, stratify=df["injury_type"], random_state=42,
         )
@@ -165,6 +165,9 @@ def get_dataloders(
         train_df, val_df = train_test_split(
             df, train_size=train_split, random_state=42,
         )
+    
+    if size is not None and size < 100:
+        train_df = train_df.sample(frac=size/100, random_state=42).reset_index(drop=True)
 
     if train_transforms is None:
         if balance_train:

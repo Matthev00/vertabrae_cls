@@ -51,6 +51,11 @@ def main(config: dict):
     dataset_sizes = [20, 40, 60, 80, 100, 200, 300, 400]
 
     for size in dataset_sizes:
+        wandb.init(
+            project="Vertebrae Classifier - Dataset Size Experiment",
+            name=f"dataset_size_{size}",
+            reinit=True
+        )
         train_loader, val_loader = get_dataloders(
             labels_file_path=LABELS_FILE_PATH,
             tensor_dir=TENSOR_DIR,
@@ -105,7 +110,6 @@ def main(config: dict):
 
 
 if __name__ == "__main__":
-    wandb.init(project="Vertebrae Classifier - Dataset Size Experiment")
     parser = argparse.ArgumentParser(description="Train 3D classifier with config file")
     parser.add_argument("--config", type=str, required=True, help="Path to YAML config file")
     args = parser.parse_args()
