@@ -1,19 +1,18 @@
-model_type: "med3d"        # or "monai", "resnet"
-model_depth: 10
+model_type: "monai"        
+model_depth: 18
 freeze_backbone: true
 shortcut_type: "B"
 early_stopping_patience: 20
 
 batch_size: 32
 max_epochs: 70
-lr: 0.001
-weight_decay: 0.01
+lr: 0.0002025692540461181
+weight_decay: 0.00001
 balancer_type: "proportional"
 main_classes: True
 
 
 scheduler:
-  type: "StepLR"
-  step_size: 10
-  gamma: 0.5
+  type: "ReduceLROnPlateau"
 
+balancer_type: "base"

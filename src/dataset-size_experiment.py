@@ -46,7 +46,7 @@ def main(config: dict):
 
     set_seed(42)
     NUM_WORKERS = os.cpu_count()
-    DEVICE = "cuda:2" if torch.cuda.is_available() else "cpu"
+    DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
     dataset_sizes = [20, 40, 60, 80, 100, 200, 300, 400]
 
